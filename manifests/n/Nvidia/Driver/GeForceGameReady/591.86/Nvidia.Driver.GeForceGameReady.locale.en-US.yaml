@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
+
+PackageIdentifier: Nvidia.Driver.GeForceGameReady
+PackageVersion: "591.86"
+PackageLocale: en-US
+Publisher: NVIDIA Corporation
+PackageName: NVIDIA GeForce Game Ready Driver
+PackageUrl: https://www.nvidia.com/en-gb/geforce/drivers/
+License: Proprietary (Freeware)
+Copyright: © 2011-2026 NVIDIA Corporation
+ShortDescription: Driver for Nvidia graphics cards.
+Tags:
+- nvidia-display-driver
+- nvidiadisplaydriver
+- nvidia-graphics-card-driver
+- nvidiagraphicscarddriver
+- nvidia-gpus
+- nvidiagpus
+- nvidia-geforce-game-ready-driver
+- nvidiageforcegamereadydriver
+- nv_dispi.inf
+ManifestType: defaultLocale
+ManifestVersion: 1.12.0
