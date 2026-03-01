@@ -8,6 +8,7 @@ NestedInstallerType: portable
 NestedInstallerFiles:
 - RelativeFilePath: microsoft.office.client.discovery.unifiedexporttool.exe
 UpgradeBehavior: install
+ArchiveBinariesDependOnPath: true
 Installers:
 - Architecture: x86
   InstallerUrl: https://winget.tplant.com.au/download/m/Microsoft/eDiscoveryExportTool/15.20.1771.0/Microsoft.Office.Client.Discovery.UnifiedExportTool.zip
