@@ -54,11 +54,10 @@ if (-not (Test-Path asa.sqlite)) {
     Write-Host "asa collect --runid baseline $analyzerArgs"
     asa collect --runid baseline $analyzerArgs
 }
-$installStart = Get-Date
 $installer = Start-Process winget -ArgumentList $wingetArgs -PassThru -NoNewWindow
 $success = $installer.WaitForExit(5 * 60 * 1000)
 $log = Get-ChildItem "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-Move-Item $log "$artifacts\$artifactName-winget.log"
+Copy-Item $log "$artifacts\$artifactName-winget.log"
 if (-not $success) {
     New-Screenshot "$artifacts\$artifactName.png"
     Stop-Process -Id $installer.Id
