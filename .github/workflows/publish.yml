@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - "index/**"
       - "manifests/**"
   workflow_dispatch:
   workflow_call:
