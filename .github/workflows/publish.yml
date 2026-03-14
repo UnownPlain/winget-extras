@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "manifests/**"
   workflow_dispatch:
   workflow_call:
 
