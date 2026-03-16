@@ -89,8 +89,9 @@ else {
         "$env:USERPROFILE\Desktop",
         "$env:ProgramData\Microsoft\Windows\Start Menu\Programs",
         "$env:APPDATA\Microsoft\Windows\Start Menu\Programs"
-    ) | Get-ChildItem -Recurse -File -Exclude "Uninstall*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    ) | Get-ChildItem -Recurse -Exclude "Uninstall*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if ($shortcut) {
+        Write-Host "Starting $(shortcut.FullName)"
         $app = Start-Process $shortcut.FullName -PassThru
     }
 }
