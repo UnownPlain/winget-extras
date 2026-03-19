@@ -44,8 +44,8 @@ $wingetArgs = @(
     "--manifest", (Split-Path $ManifestPath),
     "--architecture", $Arch,
     "--log", "$artifacts\$artifactName-installer.log",
-    "--silent",
-    "--ignore-local-archive-malware-scan", "--accept-package-agreements"
+    "--silent", "--ignore-local-archive-malware-scan",
+    "--accept-package-agreements", "--accept-source-agreements"
 )
 if ($Scope) { $wingetArgs += '--scope', $Scope }
 if ($InstallerType) { $wingetArgs += '--installer-type', $InstallerType }
