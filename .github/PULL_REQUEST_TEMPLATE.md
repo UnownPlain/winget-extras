@@ -1,9 +1,8 @@
 Checklist for Pull Requests
 
-- [ ] Have you tried submitting to [winget-pkgs](https://github.com/microsoft/winget-pkgs)?
-- [ ] Is there a related issue or pull request?  If so, add the link(s) below.
+- [ ] Is there a related issue or pull request in [winget-pkgs](https://github.com/microsoft/winget-pkgs)? If so, add the link(s) below.
    <!-- Example: Resolves #328283 -->
-  - Resolves #[Issue Number]
+  - Relates to microsoft/winget-pkgs#[Issue Number]
 
 Manifests
 
