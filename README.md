@@ -17,7 +17,7 @@ This repo was inspired by [ScoopInstaller/Extras](https://github.com/ScoopInstal
 With admin privileges, run:
 
 ```sh
-winget source add --name extras --type Microsoft.PreIndexed.Package --arg https://winget.tplant.com.au/cache
+winget source add --name winget-extras --type Microsoft.PreIndexed.Package --arg https://winget.tplant.com.au/cache
 ```
 
 Extra packages will be available with commands like `winget search` or `winget install`.
@@ -31,7 +31,7 @@ The source can be deployed to managed devices via the [`EnableAdditionalSources`
 In the Settings Catalog, enable **Administrative Templates > Windows Components > Desktop App Installer > Enable App Installer Additional Sources** and set the value to:
 
 ```json
-{"Arg":"https://winget.tplant.com.au/cache","Data":"tplant.Winget.Source_ggk937h18f62r","Explicit":false,"Identifier":"tplant.Winget.Source_ggk937h18f62r","Name":"winget-extras","TrustLevel":["Trusted","StoreOrigin"],"Type":"Microsoft.PreIndexed.Package"}
+{"Arg":"https://winget.tplant.com.au/cache","Data":"tplant.Winget.Source_ggk937h18f62r","Explicit":false,"Identifier":"tplant.Winget.Source_ggk937h18f62r","Name":"winget-extras","TrustLevel":["Trusted"],"Type":"Microsoft.PreIndexed.Package"}
 ```
 
 ### Group Policy
