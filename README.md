@@ -14,18 +14,29 @@ This repo was inspired by [ScoopInstaller/Extras](https://github.com/ScoopInstal
 
 ## Quickstart
 
-At the moment, you'll need to trust this [self-signed certificate](https://github.com/pl4nty/winget-extras/blob/main/index/cert.cer) at the machine level.
-
-> [!CAUTION]
-> This has significant security concerns, so I'm not providing instructions. But it won't be necessary soon once I have access to a publicly-trusted certificate.
-
-Then with admin privileges, run:
+With admin privileges, run:
 
 ```sh
 winget source add --name extras --type Microsoft.PreIndexed.Package --arg https://winget.tplant.com.au/cache
 ```
 
 Extra packages will be available with commands like `winget search` or `winget install`.
+
+## Enterprise deployment
+
+The source can be deployed to managed devices via the [`EnableAdditionalSources`](https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-desktopappinstaller#enableadditionalsources) policy.
+
+### Intune
+
+In the Settings Catalog, enable **Administrative Templates > Windows Components > Desktop App Installer > Enable App Installer Additional Sources** and set the value to:
+
+```json
+{"Arg":"https://winget.tplant.com.au/cache","Data":"tplant.Winget.Source_ggk937h18f62r","Explicit":false,"Identifier":"tplant.Winget.Source_ggk937h18f62r","Name":"winget-extras","TrustLevel":["Trusted","StoreOrigin"],"Type":"Microsoft.PreIndexed.Package"}
+```
+
+### Group Policy
+
+Enable **Computer Configuration > Administrative Templates > Windows Components > Desktop App Installer > Enable App Installer Additional Sources** and set the same value as above.
 
 ## Validation
 
@@ -41,3 +52,33 @@ git clone https://github.com/microsoft/winget-pkgs
 cd winget-pkgs\Tools
 .\SandboxTest.ps1 -Manifest ..\..\winget-extras\manifests\m\Microsoft\AzIPLogViewer\1.0\
 ```
+
+## Maintenance
+
+### Code signing
+
+Packages are signed via [AzureSignTool](https://github.com/vcsjones/AzureSignTool) using a certificate stored in Azure Key Vault. The following GitHub variables must be configured:
+
+| Variable | Description |
+|----------|-------------|
+| `AZURE_CLIENT_ID` | App registration client ID for OIDC |
+| `AZURE_TENANT_ID` | Azure AD tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
+| `KEY_VAULT_URL` | Key Vault URL, e.g. `https://kv-name.vault.azure.net` |
+| `KEY_VAULT_CERT` | Certificate name within the Key Vault |
+
+The app registration needs a federated credential for `repo:pl4nty/winget-extras:main`, and `Key Vault Certificate User`+`Key Vault Crypto User` roles on the Key Vault. Key/cert-level RBAC should work too, but it's [not available in the GUI](https://github.com/vcsjones/AzureSignTool/issues/296).
+
+The `Publisher` field in [`index/AppxManifest.xml`](index/AppxManifest.xml) must exactly match the signing certificate's Subject. Update it if the certificate subject changes.
+
+### Updating IndexCreationTool
+
+The publish workflow uses `IndexCreationTool.exe` from [pl4nty/winget-pkgs-selfhost](https://github.com/pl4nty/winget-pkgs-selfhost/releases/latest) to build the source index. When a new winget-cli version is released (especially one with source creator changes), update the binary:
+
+1. Find the corresponding build at [shine-oss/winget-cli on Azure Pipelines](https://dev.azure.com/shine-oss/winget-cli/_build). For example, v1.29.240 used build [#329596](https://dev.azure.com/shine-oss/winget-cli/_build/results?buildId=329596&view=artifacts&pathAsName=false&type=publishedArtifacts).
+2. Download the `Build.x64release` artifact.
+3. Extract the `Build.x64release\AppInstallerCLIE2ETests\` folder from the archive.
+4. Zip the contents of that folder as `AppInstallerCLIE2ETests.zip`.
+5. Create a new release on [pl4nty/winget-pkgs-selfhost](https://github.com/pl4nty/winget-pkgs-selfhost) tagged with the winget-cli commit SHA, and upload the zip as a release asset.
+
+The publish workflow always downloads from `releases/latest`, so it picks up the new binary automatically.
