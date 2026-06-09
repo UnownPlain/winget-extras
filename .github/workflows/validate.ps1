@@ -34,6 +34,12 @@ if ($InstallerType) { $nameParts += $InstallerType }
 $artifactName = $nameParts -join '-'
 "artifact_name=$artifactName" >> $env:GITHUB_OUTPUT
 
+@{
+    '$schema' = 'https://aka.ms/winget-settings.schema.json'
+    experimentalFeatures = @{
+        fonts = $true
+    }
+} | ConvertTo-Json | Set-Content -Path "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json" -Encoding UTF8
 winget settings --enable LocalManifestFiles
 winget settings --enable LocalArchiveMalwareScanOverride
 
