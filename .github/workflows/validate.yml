@@ -105,12 +105,21 @@ jobs:
           archive: false
 
       - name: Upload installer log
+        id: upload-log
         if: always()
         uses: actions/upload-artifact@v7
         with:
           path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}-installer.log
           if-no-files-found: ignore
           archive: false
+
+      - name: Upload installer log
+        if: steps.upload-log.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          # Somehow this can match multiple files
+          path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}-installer.log
+          if-no-files-found: ignore
 
       - name: Upload screenshot
         if: always()
