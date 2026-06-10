@@ -94,43 +94,43 @@ jobs:
           egress-policy: audit
 
       - name: Validate
-        id: run
+        id: validate
+        continue-on-error: true
         run: ./.github/workflows/validate.ps1 -ManifestPath '${{ matrix.installer.path }}' -Arch '${{ matrix.installer.arch }}' -Scope '${{ matrix.installer.scope }}' -InstallerType '${{ matrix.installer.type }}'
 
       - name: Upload winget log
-        if: always()
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}-winget.log
+          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-winget.log
           archive: false
 
       - name: Upload installer log
         id: upload-log
-        if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}-installer.log
+          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-installer.log
           if-no-files-found: ignore
           archive: false
 
-      - name: Upload installer log
+      - name: Upload installer logs
         if: steps.upload-log.outcome == 'failure'
         uses: actions/upload-artifact@v7
         with:
           # Somehow this can match multiple files
-          path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}-installer.log
+          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-installer.log
           if-no-files-found: ignore
 
       - name: Upload screenshot
-        if: always()
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}.png
+          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}.png
           if-no-files-found: ignore
           archive: false
 
       - name: Upload SARIF
+        if: steps.validate.outcome == 'success'
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ runner.temp }}\artifacts\${{ steps.run.outputs.artifact_name }}-asa.sarif
+          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
           archive: false
