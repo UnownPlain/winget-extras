@@ -34,6 +34,11 @@ if ($InstallerType) { $nameParts += $InstallerType }
 $artifactName = $nameParts -join '-'
 "artifact_name=$artifactName" >> $env:GITHUB_OUTPUT
 
+# Install latest WinGet version for fonts support
+winget --version
+Install-Module -Name Microsoft.WinGet.Client -Repository PSGallery -Force
+Repair-WinGetPackageManager -Latest -Force
+winget --version
 @{
     '$schema' = 'https://aka.ms/winget-settings.schema.json'
     experimentalFeatures = @{
