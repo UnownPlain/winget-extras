@@ -95,10 +95,10 @@ jobs:
 
       - name: Validate
         id: validate
-        continue-on-error: true
         run: ./.github/workflows/validate.ps1 -ManifestPath '${{ matrix.installer.path }}' -Arch '${{ matrix.installer.arch }}' -Scope '${{ matrix.installer.scope }}' -InstallerType '${{ matrix.installer.type }}'
 
       - name: Upload winget log
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-winget.log
@@ -106,6 +106,7 @@ jobs:
 
       - name: Upload installer log
         id: upload-log
+        if: always()
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -122,6 +123,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload screenshot
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}.png
@@ -129,8 +131,9 @@ jobs:
           archive: false
 
       - name: Upload SARIF
-        if: steps.validate.outcome == 'success'
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
+          if-no-files-found: ignore
           archive: false
