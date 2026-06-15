@@ -36,8 +36,10 @@ $artifactName = $nameParts -join '-'
 
 # Install latest WinGet version for fonts support
 winget --version
-Install-Module -Name Microsoft.WinGet.Client -Repository PSGallery -Force
-Repair-WinGetPackageManager -Latest -Force
+try {
+    Install-Module -Name Microsoft.WinGet.Client -Repository PSGallery -Force
+    Repair-WinGetPackageManager -Latest -Force
+} catch {}
 winget --version
 @{
     '$schema' = 'https://aka.ms/winget-settings.schema.json'
