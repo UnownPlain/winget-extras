@@ -33,6 +33,13 @@ body:
       options:
         - label: The installer meets the above requirements
           required: true
+  - type: input
+    attributes:
+      label: Have you submitted to winget-pkgs?
+      description: |
+        Have you tried submitting your request to https://github.com/microsoft/winget-pkgs?
+        If so, please provide the URL for your request here
+      placeholder: https://github.com/microsoft/winget-pkgs/issues/123456
   - type: textarea
     attributes:
       label: Please provide the following information
