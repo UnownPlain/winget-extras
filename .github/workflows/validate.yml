@@ -144,7 +144,6 @@ jobs:
         with:
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
           if-no-files-found: ignore
-          archive: false
 
       - name: Comment
         if: always() && github.event_name == 'pull_request' && steps.screenshot.outputs.artifact-url
