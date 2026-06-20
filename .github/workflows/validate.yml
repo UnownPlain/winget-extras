@@ -142,6 +142,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
+          name: ${{ steps.validate.outputs.artifact_name }}-asa
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
           if-no-files-found: ignore
 
