@@ -86,9 +86,15 @@ jobs:
             ${{ matrix.installer.path }}
 
       - name: Install Attack Surface Analyzer
-        uses: pl4nty/dotnet-setup-tools@v1
-        with:
-          tools: Microsoft.CST.AttackSurfaceAnalyzer.CLI
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download latest --repo pl4nty/AttackSurfaceAnalyzer --pattern '*.nupkg' --dir asa-pkg
+          $cli = Get-ChildItem asa-pkg/Microsoft.CST.AttackSurfaceAnalyzer.CLI.*.nupkg | Select-Object -First 1
+          $version = $cli.BaseName -replace '^Microsoft\.CST\.AttackSurfaceAnalyzer\.CLI\.', ''
+          dotnet tool install --global --add-source asa-pkg Microsoft.CST.AttackSurfaceAnalyzer.CLI --version $version
+          "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
 
       - name: Get image version
         id: image-version
@@ -144,4 +150,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} `
-            --body "**${{ steps.validate.outputs.artifact_name }}** — [screenshot](${{ steps.screenshot.outputs.artifact-url }})"
+            --body "[${{ steps.validate.outputs.artifact_name }} screenshot](${{ steps.screenshot.outputs.artifact-url }})"
