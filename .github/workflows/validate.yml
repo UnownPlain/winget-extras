@@ -158,6 +158,7 @@ jobs:
 
       - name: Comment
         if: always() && github.event_name == 'pull_request' && steps.screenshot.outputs.artifact-url
+        continue-on-error: true # forks don't have permission to write comments
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
