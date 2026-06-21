@@ -15,9 +15,9 @@ on:
     paths:
       - 'manifests/**'
       - 'fonts/**'
-  schedule:
-    # Daily run on main to populate the Attack Surface Analyzer baseline cache
-    - cron: '0 0 * * *'
+  # schedule:
+  #   # Daily run on main to populate the Attack Surface Analyzer baseline cache
+  #   - cron: '0 0 * * *'
 
 permissions: {}
 
