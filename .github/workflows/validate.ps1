@@ -131,11 +131,26 @@ if ($appPath) {
     }
 
     $env:PATH = "$([Environment]::GetEnvironmentVariable('PATH', 'Machine'));$([Environment]::GetEnvironmentVariable('PATH', 'User'))"
+
+    # arm64 runners can sit on the Windows OOBE (privacy settings) screen, which covers the
+    # desktop. Mark privacy consent complete and close the OOBE host so it doesn't reappear.
+    Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE' -Name PrivacyConsentStatus -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
+    Stop-Process -Name WWAHost, FirstLogonAnim -Force -ErrorAction SilentlyContinue
+
     Write-Host "Starting $appPath"
     # https://github.com/PowerShell/PowerShell/issues/10996
     try { $app = Start-Process $appPath -PassThru } catch {}
-    
+
     Start-Sleep 10
+
+    # Close the Start menu (the post-OOBE shell auto-opens it), hide the runner's debug console
+    # via "show desktop", then restore just the app window so only it shows in the screenshot.
+    Add-Type 'using System;using System.Runtime.InteropServices;public static class Win{[DllImport("user32.dll")]public static extern bool ShowWindow(IntPtr h,int c);}' -ErrorAction SilentlyContinue
+    Stop-Process -Name StartMenuExperienceHost -Force -ErrorAction SilentlyContinue
+    (New-Object -ComObject Shell.Application).MinimizeAll()
+    if ($app) { $app.Refresh(); [Win]::ShowWindow($app.MainWindowHandle, 9) | Out-Null }
+    Start-Sleep 1
+
     New-Screenshot "$artifacts\$artifactName.png"
     if ($app) {
         if ($app.HasExited) {
