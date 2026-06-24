@@ -1,0 +1,9 @@
+{
+	"$schema": "https://anthelion.unownplain.dev/schema.json",
+	"strategy": "json",
+	"json": {
+		"url": "https://download.stackhawk.com/hawkdocs/hawk.manifest.json",
+		"path": "latest.version"
+	},
+	"urls": ["https://download.stackhawk.com/hawk/msi/hawk-{version}.msi"]
+}

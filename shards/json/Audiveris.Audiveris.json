@@ -1,0 +1,8 @@
+{
+	"$schema": "https://anthelion.unownplain.dev/schema.json",
+	"strategy": "github-release",
+	"github": { "owner": "Audiveris", "repo": "audiveris" },
+	"urls": [
+		"https://github.com/Audiveris/audiveris/releases/download/{version}/Audiveris-{version}-windows-x86_64.msi"
+	]
+}
