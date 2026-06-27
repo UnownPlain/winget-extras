@@ -1,21 +1,17 @@
 name: label
 
 on:
-  pull_request_target:
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     paths: ['manifests/**', 'fonts/**']
 
-permissions:
-  pull-requests: write
+permissions: {}
 
 jobs:
   label:
-    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-slim
     steps:
-      # This checkout might have unsafe content
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
       - uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         id: changed
         with:
@@ -30,9 +26,8 @@ jobs:
           CHANGED: ${{ steps.changed.outputs.all_changed_files }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          Install-Module powershell-yaml -Force
           $archs = $env:CHANGED -split '\s+' | Where-Object { $_ } | ForEach-Object {
-            (Get-Content $_ | ConvertFrom-Yaml).Installers.Architecture
+            yq '.Architecture, .Installers[].Architecture' $_
           } | Select-Object -Unique
           if ($archs -contains 'arm') {
             gh pr edit $env:PR --add-label 'Validation-arm32' --repo $env:GITHUB_REPOSITORY
