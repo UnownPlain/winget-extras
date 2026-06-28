@@ -102,13 +102,14 @@ if (-not (Test-Path asa.sqlite)) {
     asa collect --runid baseline $analyzerArgs
 }
 $installer = Start-Process winget -ArgumentList $wingetArgs -PassThru -NoNewWindow
-$success = $installer.WaitForExit(2 * 60 * 1000)
+# 2GB+ zips like Cinebench need longer than 2 mins to extract
+$success = $installer.WaitForExit(5 * 60 * 1000)
 if ($installer.ExitCode -eq "-1978334972") {
     # Dependency not found, so try resolving it from our source
     winget source add --name winget-extras --type Microsoft.PreIndexed.Package --arg https://winget.tplant.com.au/cache --accept-source-agreements
     winget source remove --name winget-pkgs
     $installer = Start-Process winget -ArgumentList $wingetArgs -PassThru -NoNewWindow
-    $success = $installer.WaitForExit(2 * 60 * 1000)
+    $success = $installer.WaitForExit(5 * 60 * 1000)
 }
 $log = Get-ChildItem "$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 Copy-Item $log "$artifacts\$artifactName-winget.log"
