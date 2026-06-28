@@ -2,7 +2,7 @@ name: label
 
 on:
   pull_request_target:
-    paths: ["manifests/**", "fonts/**"]
+    paths: ['manifests/**', 'fonts/**']
 
 permissions:
   pull-requests: write
