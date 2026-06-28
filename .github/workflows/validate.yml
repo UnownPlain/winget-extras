@@ -27,14 +27,14 @@ jobs:
     outputs:
       installers: ${{ steps.matrix.outputs.installers }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Get changed manifests
         id: changed
         if: github.event_name == 'pull_request'
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             manifests/**/*.yaml
@@ -79,7 +79,7 @@ jobs:
       matrix:
         installer: ${{ fromJSON(needs.detect.outputs.installers) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
           sparse-checkout: |
@@ -108,7 +108,7 @@ jobs:
       #     path: ${{ github.workspace }}/asa.sqlite*
       #     key: asa-baseline-${{ runner.os }}-${{ runner.arch }}-${{ steps.image-version.outputs.version }}
 
-      - uses: step-security/harden-runner@v2
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
 
@@ -141,7 +141,7 @@ jobs:
       - name: Upload screenshot
         id: screenshot
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}.png
           if-no-files-found: ignore
@@ -149,7 +149,7 @@ jobs:
 
       - name: Upload SARIF
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.validate.outputs.artifact_name }}-asa
           path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
