@@ -6,10 +6,15 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   label:
+    name: Label
     permissions:
-      pull-requests: write
+      pull-requests: write # For adding labels
     runs-on: ubuntu-slim
     steps:
       - uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6

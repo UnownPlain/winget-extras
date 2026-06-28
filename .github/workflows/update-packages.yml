@@ -16,8 +16,8 @@ jobs:
     name: Update Packages
     runs-on: ubuntu-26.04-arm
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # For branch creation
+      pull-requests: write # For opening PRs
     timeout-minutes: 10
     steps:
       - name: Checkout

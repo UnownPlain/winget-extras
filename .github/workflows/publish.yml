@@ -13,8 +13,12 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
 jobs:
   merge:
+    name: Merge Manifests
     runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -43,11 +47,15 @@ jobs:
               path: index
               if-no-files-found: error
 
-  main:
+  publish:
+    name: Publish Manifests
     needs: merge
     runs-on: windows-2025
     permissions:
       id-token: write
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - parallel:
           - name: Download index

@@ -21,8 +21,13 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   detect:
+    name: Detect
     runs-on: ubuntu-slim
     outputs:
       installers: ${{ steps.matrix.outputs.installers }}
@@ -72,12 +77,16 @@ jobs:
           "installers=$($installers | ConvertTo-Json -Compress -Depth 5 -AsArray)" >> $env:GITHUB_OUTPUT
 
   validate:
+    name: Installation Validation
     needs: detect
     runs-on: ${{ matrix.installer.arch == 'arm64' && 'windows-11-arm' || 'windows-latest' }}
     strategy:
       fail-fast: false
       matrix:
         installer: ${{ fromJSON(needs.detect.outputs.installers) }}
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -88,7 +97,6 @@ jobs:
             ${{ matrix.installer.path }}
 
       - name: Install Attack Surface Analyzer
-        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -129,14 +137,15 @@ jobs:
 
       - name: Print logs
         if: always()
-        shell: pwsh
         working-directory: ${{ runner.temp }}\artifacts
         run: |
-          Get-ChildItem "${{ steps.validate.outputs.artifact_name }}-*.log", "${{ steps.validate.outputs.artifact_name }}-installer.log" -Recurse -File | select -Unique | ForEach-Object {
+          Get-ChildItem "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-*.log", "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-installer.log" -Recurse -File | select -Unique | ForEach-Object {
             Write-Host "::group::$($_.Name)"
             Get-Content $_
             Write-Host "::endgroup::"
           }
+        env:
+          STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME: ${{ steps.validate.outputs.artifact_name }}
 
       - name: Upload screenshot
         id: screenshot
@@ -157,7 +166,6 @@ jobs:
 
       - name: Add validation logs to job summary
         if: always()
-        shell: pwsh
         env:
           ARTIFACT_NAME: ${{ steps.validate.outputs.artifact_name }}
           SCREENSHOT_URL: ${{ steps.screenshot.outputs.artifact-url }}
