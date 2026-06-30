@@ -1,22 +1,23 @@
 name: label
 
 on:
-  pull_request_target:
-    paths: ["manifests/**", "fonts/**"]
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
+    paths: ['manifests/**', 'fonts/**']
 
-permissions:
-  pull-requests: write
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   label:
-    runs-on: ubuntu-latest
+    name: Label
+    permissions:
+      pull-requests: write # For adding labels
+    runs-on: ubuntu-slim
     steps:
-      # This checkout might have unsafe content
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - uses: tj-actions/changed-files@v47
+      - uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         id: changed
         with:
           files: |
@@ -30,9 +31,8 @@ jobs:
           CHANGED: ${{ steps.changed.outputs.all_changed_files }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          Install-Module powershell-yaml -Force
           $archs = $env:CHANGED -split '\s+' | Where-Object { $_ } | ForEach-Object {
-            (Get-Content $_ | ConvertFrom-Yaml).Installers.Architecture
+            yq '.Architecture, .Installers[].Architecture' $_
           } | Select-Object -Unique
           if ($archs -contains 'arm') {
             gh pr edit $env:PR --add-label 'Validation-arm32' --repo $env:GITHUB_REPOSITORY

@@ -1,0 +1,12 @@
+{
+	"$schema": "https://anthelion.unownplain.dev/schema.json",
+	"strategy": "github-release",
+	"github": { "owner": "rustdesk", "repo": "rustdesk" },
+	"urls": [
+		"https://github.com/rustdesk/rustdesk/releases/download/{version}/rustdesk-{version}-x86-sciter.exe",
+		"https://github.com/rustdesk/rustdesk/releases/download/{version}/rustdesk-{version}-x86_64.exe",
+		"https://github.com/rustdesk/rustdesk/releases/download/{version}/rustdesk-{version}-x86_64.msi",
+		"https://github.com/rustdesk/rustdesk/releases/download/{version}/rustdesk-{version}-aarch64.exe",
+		"https://github.com/rustdesk/rustdesk/releases/download/{version}/rustdesk-{version}-aarch64.msi"
+	]
+}

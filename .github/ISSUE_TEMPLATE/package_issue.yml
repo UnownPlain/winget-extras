@@ -1,7 +1,7 @@
-name: "🐛 Package Issue"
+name: '🐛 Package Issue'
 description: Report issues and unexpected behaviour of packages with WinGet Client.
-title: "[Package Issue]: Package.Identifier"
-labels: ["Issue-Bug"]
+title: '[Package Issue]: Package.Identifier'
+labels: ['Issue-Bug']
 body:
   - type: markdown
     attributes:
