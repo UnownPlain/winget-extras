@@ -1,7 +1,7 @@
 # Created with komac v2.16.0
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
 
-PackageIdentifier: Google.NotoSans
+PackageIdentifier: Google.Noto.Sans
 PackageVersion: '2.015'
 InstallerType: zip
 NestedInstallerType: font
