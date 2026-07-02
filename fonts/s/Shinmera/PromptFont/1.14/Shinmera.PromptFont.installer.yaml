@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: Shinmera.PromptFont
+PackageVersion: "1.14"
+ReleaseDate: 2026-03-25
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: promptfont.otf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://codeberg.org/shinmera/promptfont/releases/download/v1.14/promptfont.zip
+  InstallerSha256: 6DCE0FDD26AF97FDF5AAF2D3F6EFC7D0DBE792DA9A9EB6FB8AB6ABA8FC30A29E
+ManifestType: installer
+ManifestVersion: 1.12.0
