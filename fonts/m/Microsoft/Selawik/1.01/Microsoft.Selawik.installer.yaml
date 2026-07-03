@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: Microsoft.Selawik
+PackageVersion: "1.01"
+ReleaseDate: 2015-12-08
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: selawk.ttf
+- RelativeFilePath: selawkb.ttf
+- RelativeFilePath: selawkl.ttf
+- RelativeFilePath: selawksb.ttf
+- RelativeFilePath: selawksl.ttf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://github.com/microsoft/Selawik/releases/download/1.01/Selawik_Release.zip
+  InstallerSha256: 3F62C51E05E3B5A1E6241CF92A371F0BE2EA1183AA87B30718BBD40832A8D423
+ManifestType: installer
+ManifestVersion: 1.12.0

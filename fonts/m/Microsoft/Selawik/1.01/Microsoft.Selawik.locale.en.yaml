@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
+
+PackageIdentifier: Microsoft.Selawik
+PackageVersion: "1.01"
+PackageLocale: en
+Publisher: Microsoft Corporation
+PackageName: Selawik
+PackageUrl: https://github.com/microsoft/Selawik
+License: OFL-1.1
+ShortDescription: An open source replacement for Segoe UI. Was last updated in 2015.
+Moniker: selawik
+Tags:
+- font
+- selawk.ttf
+- selawkb.ttf
+- selawkl.ttf
+- selawksb.ttf
+- selawksl.ttf
+- siiḷivik
+- akuliġaq
+- siilivik
+- akuligaq
+ManifestType: defaultLocale
+ManifestVersion: 1.12.0
