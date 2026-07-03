@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: Microsoft.SkeenaIndigenousTypeface
+PackageVersion: "1.04"
+ReleaseDate: 2025-08-26
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-Black.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-BlackItalic.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-Bold.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-BoldItalic.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-ExtraBold.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-ExtraBoldItalic.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-Italic.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-Medium.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-MediumItalic.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-Regular.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-Semibold.ttf
+- RelativeFilePath: SkeenaIndigenous\TTF\SkeenaIndigenous-SemiboldItalic.ttf
+- RelativeFilePath: SkeenaIndigenous\TTFVF\SkeenaIndigenous-Roman.ttf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://github.com/microsoft/Skeena-Indigenous-Typeface/releases/download/v1.04/fonts.zip
+  InstallerSha256: 42277A7D18624931BAD2E207CC383D55FD3EDD34CC2E95AE52B2F462C20CE2A6
+ManifestType: installer
+ManifestVersion: 1.12.0
