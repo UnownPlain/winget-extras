@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
+
+PackageIdentifier: Google.OpenSans
+PackageVersion: "3.003"
+PackageLocale: en
+Publisher: Google Fonts
+PackageName: Open Sans
+PackageUrl: https://github.com/googlefonts/opensans
+License: SIL Open Font License 1.1
+ShortDescription: A humanist sans serif typeface.
+Moniker: opensans
+Tags:
+- font
+- google-open-sans
+- googleopensans
+- ttf-font
+- ttffont
+ManifestType: defaultLocale
+ManifestVersion: 1.12.0
