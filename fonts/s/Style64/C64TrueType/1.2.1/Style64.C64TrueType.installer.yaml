@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: Style64.C64TrueType
+PackageVersion: 1.2.1
+ReleaseDate: 2019-04-15
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: C64_TrueType_v1.2.1-STYLE\fonts\C64_Pro-STYLE.otf
+- RelativeFilePath: C64_TrueType_v1.2.1-STYLE\fonts\C64_Pro_Mono-STYLE.otf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://style64.org/file/C64_TrueType_v1.2.1-STYLE.zip
+  InstallerSha256: B630FF545DF6FED324BD9B6DC7336B7B93E8777668F45CBB3679561F9960EF2D
+ManifestType: installer
+ManifestVersion: 1.12.0

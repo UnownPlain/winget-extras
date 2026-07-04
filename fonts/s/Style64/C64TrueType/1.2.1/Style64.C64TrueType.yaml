@@ -1,0 +1,8 @@
+# Created using wingetcreate 1.12.8.0
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.12.0.schema.json
+
+PackageIdentifier: Style64.C64TrueType
+PackageVersion: 1.2.1
+DefaultLocale: en
+ManifestType: version
+ManifestVersion: 1.12.0
