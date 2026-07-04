@@ -133,7 +133,7 @@ Move-Item baseline_vs_installed_summary.sarif "$artifacts\$artifactName-asa.sari
 # TODO validate multiple NestedInstallerFiles
 $appPath = $null
 if ($manifest.NestedInstallerType -eq 'portable') {
-    $appPath = Split-Path $manifest.NestedInstallerFiles[0].RelativeFilePath -Leaf
+    $appPath = Split-Path ($selectedInstaller.NestedInstallerFiles ?? $manifest.NestedInstallerFiles)[0].RelativeFilePath -Leaf
 }
 elseif ($InstallerType -eq 'portable') {
     $appPath = (@($selectedInstaller.Commands) + @($manifest.Commands)) | Where-Object { $_ } | Select-Object -First 1
