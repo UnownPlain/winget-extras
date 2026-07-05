@@ -58,6 +58,15 @@ jobs:
       run:
         shell: pwsh
     steps:
+      - name: Checkout mise configuration
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            mise.lock
+            mise.toml
+          sparse-checkout-cone-mode: false
+
       - parallel:
           - name: Download index
             uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -94,6 +103,7 @@ jobs:
               TEMP: ${{ runner.temp }}
 
           - uses: azure/login@532459ea530d8321f2fb9bb10d1e0bcf23869a43 # v3.0.0
+            if: github.ref == 'refs/heads/main'
             with:
               client-id: ${{ vars.AZURE_CLIENT_ID }}
               tenant-id: ${{ vars.AZURE_TENANT_ID }}
@@ -104,6 +114,7 @@ jobs:
 
       - name: Sign source package
         working-directory: index
+        if: github.ref == 'refs/heads/main'
         run: |
           $msixFiles = Get-ChildItem cache -Recurse -Filter *.msix | Select-Object -ExpandProperty FullName
           AzureSignTool sign -kvu $env:KEY_VAULT_URL -kvc $env:KEY_VAULT_CERT -kvm -tr http://timestamp.acs.microsoft.com -td sha256 -fd sha256 $msixFiles
@@ -113,7 +124,7 @@ jobs:
 
       - name: Publish source
         working-directory: index
-        run: rclone sync cache r2:winget-extras/cache --checksum --fast-list
+        run: rclone sync cache r2:winget-extras/cache --checksum --fast-list ${{ github.ref != 'refs/heads/main' && '--dry-run' || '' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
