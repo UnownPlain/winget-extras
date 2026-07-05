@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: SILGlobal.Kanchenjunga
+PackageVersion: "2.001"
+ReleaseDate: 2024-09-11
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: Kanchenjunga-2.001\Kanchenjunga-Bold.ttf
+- RelativeFilePath: Kanchenjunga-2.001\Kanchenjunga-Medium.ttf
+- RelativeFilePath: Kanchenjunga-2.001\Kanchenjunga-Regular.ttf
+- RelativeFilePath: Kanchenjunga-2.001\Kanchenjunga-SemiBold.ttf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://software.sil.org/downloads/r/kanchenjunga/Kanchenjunga-2.001.zip
+  InstallerSha256: 8BFCACE22218E6527A0DC19A74B61CAF6B4332FF06CF69DF97C9F130C4AAE9EB
+ManifestType: installer
+ManifestVersion: 1.28.0
