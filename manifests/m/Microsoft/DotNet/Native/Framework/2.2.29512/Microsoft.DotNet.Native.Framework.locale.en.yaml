@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
 
 PackageIdentifier: Microsoft.DotNet.Native.Framework
 PackageVersion: 2.2.29512
@@ -11,7 +11,7 @@ ShortDescription: A pre-compilation technology for building Universal Windows (U
 Description: |-
   A pre-compilation technology for building Universal Windows (UWP) applications in Visual Studio 2015 and later. Applications are automatically compiled to native code before they reach consumer devices.
 
-  Not to be confused with Microsoft .NET Framework.
+  Not to be confused with Microsoft .NET Framework or Microsoft .NET Core Framework.
 Moniker: mdnf
 Tags:
 - Microsoft.NET.Native.Framework.2.2
@@ -25,5 +25,8 @@ Tags:
 - microsoft.netnativeframework
 - uwp-apps-dependency
 - mdnnf
+Documentations:
+- DocumentLabel: Alternate Homepage
+  DocumentUrl: https://www.nuget.org/packages/runtime.win10-x64.Microsoft.Net.Native.SharedLibrary/2.2.8-rel-33220-00
 ManifestType: defaultLocale
-ManifestVersion: 1.12.0
+ManifestVersion: 1.28.0
