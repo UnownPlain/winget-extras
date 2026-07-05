@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: SlavonicCI.Shafarik
+PackageVersion: "1.001"
+PackageLocale: en-US
+Publisher: Slavonic Computing Initiative
+PackageName: Shafarik
+PackageUrl: https://github.com/slavonic/Shafarik
+License: OFL-1.1
+ShortDescription: A specialized font intended for an academic presentation of Old Slavonic texts written in either the Cyrillic or Glagolitic alphabets.
+Moniker: sharifik
+Tags:
+- font
+- glagolitic
+- old-slavonic
+- oldslavonic
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
