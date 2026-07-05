@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: CITPC.IPAexFont
+PackageVersion: "4.01"
+ReleaseDate: 2019-04-26
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: IPAexfont00401\ipaexg.ttf
+- RelativeFilePath: IPAexfont00401\ipaexm.ttf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://moji.or.jp/wp-content/ipafont/IPAexfont/IPAexfont00401.zip
+  InstallerSha256: BCF8374AB3F9672C421120430DD19A51C99F5265CF06FC340D9A661DDFD7974B
+ManifestType: installer
+ManifestVersion: 1.28.0
