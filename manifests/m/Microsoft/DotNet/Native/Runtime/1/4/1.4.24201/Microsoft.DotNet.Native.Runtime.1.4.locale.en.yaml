@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.DotNet.Native.Runtime.1.4
+PackageVersion: 1.4.24201
+PackageLocale: en
+Publisher: Microsoft Corporation
+PackageName: Microsoft .NET Native Runtime 1.4
+License: MIT
+ShortDescription: A pre-compilation technology for building Universal Windows (UWP) applications in Visual Studio. Applications are automatically compiled to native code before they reach consumer devices.
+Description: |-
+  A pre-compilation technology for building Universal Windows (UWP) applications in Visual Studio. Applications are automatically compiled to native code before they reach consumer devices.
+
+  Not to be confused with .NET Native Framework or .NET Runtime.
+Moniker: nativeruntime14
+Tags:
+- microsoft.net.native.runtime.1.4
+- microsoft-dotnet-native-runtime-1.4
+- microsoftdotnetnativeruntime
+- microsoft-net-native-runtime-1.4
+- microsoftnetnativeruntime
+- microsoft-.net-native-runtime-1.4
+- microsoft.netnativeruntime
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
