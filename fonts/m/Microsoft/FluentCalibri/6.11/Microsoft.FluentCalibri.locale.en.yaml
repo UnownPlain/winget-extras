@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.FluentCalibri
+PackageVersion: "6.11"
+PackageLocale: en
+Publisher: Microsoft
+PackageName: Microsoft Fluent Calibri
+PackageUrl: https://www.microsoft.com/en-us/download/details.aspx?id=50721
+License: Proprietary (Freeware)
+ShortDescription: A variant of the Microsoft font Calibri in which the letters are spaced further apart, which is intended to help readers with visual crowding. Visual crowding is sometimes associated with dyslexia.
+Moniker: fluentcalibri
+Tags:
+- font
+- microsoft-fluent-calibri
+- microsoftfluentcalibri
+- fluent_calibri.ttf
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
