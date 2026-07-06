@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.28.0.schema.json
+PackageIdentifier: ModMii.ModMii
+PackageVersion: 8.0.6
+PackageLocale: en-GB
+Description: |-
+  Able to download all the files needed to modify ANY Wii, WiiU or vWii.
+
+  As of 6 July 2026, the Winget package is known to trigger Windows Security, which is known to be a false positive.
+ManifestType: locale
+ManifestVersion: 1.28.0
