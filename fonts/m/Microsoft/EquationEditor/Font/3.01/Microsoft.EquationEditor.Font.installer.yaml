@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: Microsoft.EquationEditor.Font
+PackageVersion: "3.01"
+InstallerType: font
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://download.microsoft.com/download/3/b/c/3bc07d0c-2748-4300-84dd-694857e582f1/MTEXTRA.TTF
+  InstallerSha256: 6C469962F33B7222F07B8D1AE8025F177F4A5F5DB3EB62FA1523F261A270991F
+ManifestType: installer
+ManifestVersion: 1.12.0
