@@ -1,0 +1,16 @@
+﻿# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+PackageIdentifier: Microsoft.SystemCenter.Orchestrator.RunbookDesigner
+PackageVersion: 10.25.1.7
+PackageLocale: en-US
+Publisher: Microsoft
+PackageName: System Center Orchestrator Runbook Designer
+PackageUrl: https://learn.microsoft.com/en-us/system-center/orchestrator/design-and-build-runbooks
+License: Proprietary
+ShortDescription: Dashboard to operate System Center Orchestrator Management Service instances.
+Moniker: runbookdesigner
+Tags:
+- runbook-designer
+- system-center-orchestrator
+- systemcenterorchestratorrunbookdesigner
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0

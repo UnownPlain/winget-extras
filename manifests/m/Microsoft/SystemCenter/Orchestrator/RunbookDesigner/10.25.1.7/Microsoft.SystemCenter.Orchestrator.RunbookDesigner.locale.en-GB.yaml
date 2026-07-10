@@ -1,0 +1,12 @@
+﻿# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.28.0.schema.json
+PackageIdentifier: Microsoft.SystemCenter.Orchestrator.RunbookDesigner
+PackageVersion: 10.25.1.7
+PackageLocale: en-GB
+PackageName: System Centre Orchestrator Runbook Designer
+ShortDescription: Dashboard to operate System Centre Orchestrator Management Service instances.
+Tags:
+- runbook-designer
+- system-centre-orchestrator
+- systemcentreorchestratorrunbookdesigner
+ManifestType: locale
+ManifestVersion: 1.28.0
