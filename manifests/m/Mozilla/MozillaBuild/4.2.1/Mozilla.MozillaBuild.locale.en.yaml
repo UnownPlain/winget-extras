@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Mozilla.MozillaBuild
+PackageVersion: 4.2.1
+PackageLocale: en
+Publisher: Mozilla
+PackageName: MozillaBuild
+PackageUrl: https://wiki.mozilla.org/MozillaBuild
+License: Spread across multiple licenses (Freeware)
+LicenseUrl: https://hg-edge.mozilla.org/mozilla-build/file/tip/license.rtf
+ShortDescription: A meta-installer that provides everything needed to build Mozilla on Windows.
+Moniker: mozillabuild
+Tags:
+- mozilla-build
+- build-firefox-from-source-code
+- buildfirefoxfromsourcecode
+- requirescmd
+Documentations:
+- DocumentLabel: User Guide
+  DocumentUrl: https://firefox-source-docs.mozilla.org/setup/windows_build.html
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
