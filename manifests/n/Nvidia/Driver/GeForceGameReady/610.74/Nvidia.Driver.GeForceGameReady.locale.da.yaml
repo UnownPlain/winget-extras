@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.12.0.schema.json
+
+PackageIdentifier: Nvidia.Driver.GeForceGameReady
+PackageVersion: "610.74"
+PackageLocale: da
+PackageName: NVIDIA GeForce «Game Ready» skærmdriver
+PackageUrl: https://www.nvidia.com/en-eu/drivers/details/272788/
+License: Proprietær (Gratis)
+ShortDescription: Drivere for NVIDIA-skærmkort.
+Description: |-
+  Grafik- og lyddrivere for NVIDIA-skærmkort.
+
+  Per version 610.47, støtter driveren NVIDIAs 16x0-serie og op.
+
+  Som med den vanlige NVIDIA-driverinstallereren, vil skærmene blinke én gang, når installationen er fuldført.
+
+  Til trods for flere forsøk på at gøre den her Winget-pakken i stand til, at blive opdaget med «winget update», har ingen sådan metode blevet fundet endnu.
+Tags:
+- nvidia-skærmkortdriver
+- nvidiaskærmkortdriver
+- nvidia-gpu-driver
+- nvidiagpudriver
+- nvidia-skærmdriver
+- nvidiaskærmdriver
+- nvidia-driver-for-hd-lyd
+- nvidiadriverforhdlyd
+- nvidia-gpu-er
+- nvidiagpuer
+- nvidia-geforce-game-ready-driver
+- nvidiageforcegamereadydriver
+- nvidia-driver
+- nvidiadriver
+- nv_dispi.inf
+- nvhda.inf
+Documentations:
+- DocumentLabel: Info om parametere
+  DocumentUrl: https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/windows.html
+ManifestType: locale
+ManifestVersion: 1.12.0
