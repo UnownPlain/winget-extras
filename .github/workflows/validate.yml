@@ -142,11 +142,14 @@ jobs:
         id: validate
         shell: powershell
         run: |
-          & "$env:RUNNER_TEMP\pwsh\pwsh.exe" -NoLogo -NoProfile -File ./.github/workflows/validate.ps1 `
-            -ManifestPath $env:MANIFEST_PATH `
-            -Arch $env:ARCH `
-            -Scope $env:SCOPE `
-            -InstallerType $env:INSTALLER_TYPE
+          $validationArgs = @(
+            '-NoLogo', '-NoProfile', '-File', './.github/workflows/validate.ps1',
+            '-ManifestPath', $env:MANIFEST_PATH,
+            '-Arch', $env:ARCH
+          )
+          if ($env:SCOPE) { $validationArgs += '-Scope', $env:SCOPE }
+          if ($env:INSTALLER_TYPE) { $validationArgs += '-InstallerType', $env:INSTALLER_TYPE }
+          & "$env:RUNNER_TEMP\pwsh\pwsh.exe" @validationArgs
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
         env:
           MANIFEST_PATH: ${{ matrix.installer.path }}
@@ -158,9 +161,8 @@ jobs:
       - name: Print logs
         if: always()
         shell: powershell
-        working-directory: ${{ runner.temp }}\artifacts
         run: |
-          Get-ChildItem "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-*.log", "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-installer.log" -Recurse -File | select -Unique | ForEach-Object {
+          Get-ChildItem "$env:RUNNER_TEMP\artifacts\$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-*.log", "$env:RUNNER_TEMP\artifacts\$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-installer.log" -Recurse -File -ErrorAction SilentlyContinue | select -Unique | ForEach-Object {
             Write-Host "::group::$($_.Name)"
             Get-Content $_
             Write-Host "::endgroup::"
