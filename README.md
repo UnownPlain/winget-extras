@@ -46,6 +46,11 @@ Packages are validated automatically using [GitHub Actions](https://github.com/p
 - Interactive installation is only tested if silent installation fails
 - The `arm` architecture (32-bit ARM) is not tested
 
+Automated installation validation runs in a fresh Windows 11 KVM virtual machine on a
+GitHub-hosted Linux runner. x64 guests use `ubuntu-latest`, while ARM64 guests use
+`ubuntu-24.04-arm`. Validation artifacts are copied out through a host-only shared folder before
+the VM is destroyed.
+
 Try validation yourself with these commands.
 
 ```sh

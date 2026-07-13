@@ -81,7 +81,8 @@ jobs:
   validate:
     name: Installation Validation
     needs: detect
-    runs-on: ${{ matrix.installer.arch == 'arm64' && 'windows-11-arm' || 'windows-latest' }}
+    runs-on: ${{ matrix.installer.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -94,42 +95,27 @@ jobs:
         with:
           persist-credentials: false
           sparse-checkout: |
+            .github/workflows/validate-vm.sh
+            .github/workflows/validate-bootstrap.ps1
             .github/workflows/validate.ps1
             .github/workflows/analyses.json
             ${{ matrix.installer.path }}
-
-      - name: Install Attack Surface Analyzer
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release download latest --repo pl4nty/AttackSurfaceAnalyzer --pattern '*.nupkg' --dir asa-pkg
-          $cli = Get-ChildItem asa-pkg/Microsoft.CST.AttackSurfaceAnalyzer.CLI.*.nupkg | Select-Object -First 1
-          $version = $cli.BaseName -replace '^Microsoft\.CST\.AttackSurfaceAnalyzer\.CLI\.', ''
-          dotnet tool install --global --add-source asa-pkg Microsoft.CST.AttackSurfaceAnalyzer.CLI --version $version
-          "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
-
-      - name: Get image version
-        id: image-version
-        run: '"version=$env:ImageVersion" >> $env:GITHUB_OUTPUT'
-
-      # - name: Restore Attack Surface Analyzer database
-      #   uses: actions/cache@v5
-      #   with:
-      #     path: ${{ github.workspace }}/asa.sqlite*
-      #     key: asa-baseline-${{ runner.os }}-${{ runner.arch }}-${{ steps.image-version.outputs.version }}
 
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
 
+      - name: Free disk space for Windows VM
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/share/dotnet
+          docker system prune --all --force
+
       - name: Validate
         id: validate
+        shell: bash
         run: |
-          ./.github/workflows/validate.ps1 `
-            -ManifestPath $env:MANIFEST_PATH `
-            -Arch $env:ARCH `
-            -Scope $env:SCOPE `
-            -InstallerType $env:INSTALLER_TYPE
+          bash ./.github/workflows/validate-vm.sh
         env:
           MANIFEST_PATH: ${{ matrix.installer.path }}
           ARCH: ${{ matrix.installer.arch }}
@@ -139,7 +125,7 @@ jobs:
 
       - name: Print logs
         if: always()
-        working-directory: ${{ runner.temp }}\artifacts
+        working-directory: ${{ runner.temp }}/artifacts
         run: |
           Get-ChildItem "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-*.log", "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-installer.log" -Recurse -File | select -Unique | ForEach-Object {
             Write-Host "::group::$($_.Name)"
@@ -154,7 +140,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}.png
+          path: ${{ runner.temp }}/artifacts/${{ steps.validate.outputs.artifact_name }}.png
           if-no-files-found: ignore
           archive: false
 
@@ -163,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.validate.outputs.artifact_name }}-asa
-          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
+          path: ${{ runner.temp }}/artifacts/${{ steps.validate.outputs.artifact_name }}-asa.sarif
           if-no-files-found: ignore
 
       - name: Add validation logs to job summary

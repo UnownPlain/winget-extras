@@ -54,13 +54,29 @@ $artifactName = $nameParts -join '-'
 # Install latest pre-release WinGet version for fonts support and local manifest fixes.
 # Switch back to Repair-WinGetPackageManager and stable WinGet once 1.29.x releases and
 # PowerShell modules update.
-$assetUrl = gh api `
-    '/repos/microsoft/winget-cli/releases' `
-    --jq 'map(select(.prerelease)) | first | .assets[] | select(.name == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle") | .browser_download_url'
+$headers = @{ Accept = 'application/vnd.github+json' }
+if ($env:GITHUB_TOKEN) { $headers.Authorization = "Bearer $env:GITHUB_TOKEN" }
+$releases = Invoke-RestMethod `
+    'https://api.github.com/repos/microsoft/winget-cli/releases?per_page=20' -Headers $headers
+$assetUrl = $releases | Where-Object prerelease | Select-Object -First 1 -ExpandProperty assets |
+    Where-Object name -EQ 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle' |
+    Select-Object -ExpandProperty browser_download_url
+if (-not $assetUrl) { throw 'Could not find the WinGet bundle in the latest pre-release' }
+$dependencyUrl = $releases | Where-Object prerelease | Select-Object -First 1 -ExpandProperty assets |
+    Where-Object name -EQ 'DesktopAppInstaller_Dependencies.zip' |
+    Select-Object -ExpandProperty browser_download_url
+if (-not $dependencyUrl) { throw 'Could not find the WinGet dependencies in the latest pre-release' }
 
 $wingetBundle = Join-Path $env:RUNNER_TEMP 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'
+$dependencyArchive = Join-Path $env:RUNNER_TEMP 'DesktopAppInstaller_Dependencies.zip'
+$dependencyDirectory = Join-Path $env:RUNNER_TEMP 'winget-dependencies'
 Invoke-WebRequest -Uri $assetUrl -OutFile $wingetBundle
-Add-AppxPackage -Path $wingetBundle -ForceUpdateFromAnyVersion -ErrorAction Stop
+Invoke-WebRequest -Uri $dependencyUrl -OutFile $dependencyArchive
+Expand-Archive $dependencyArchive -DestinationPath $dependencyDirectory -Force
+$osArchitecture = if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') { 'arm64' } else { 'x64' }
+$dependencies = Get-ChildItem (Join-Path $dependencyDirectory $osArchitecture) -Filter '*.appx'
+Add-AppxPackage -Path $wingetBundle -DependencyPath $dependencies.FullName `
+    -ForceUpdateFromAnyVersion -ErrorAction Stop
 Write-Host "Installed latest WinGet pre-release: $(winget --version)"
 
 $wingetSettings = @{
