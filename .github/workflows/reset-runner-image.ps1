@@ -8,12 +8,11 @@ $quarantineSuffix = [Guid]::NewGuid().ToString('N')
 function Move-ToQuarantine {
     param([Parameter(Mandatory)][string]$Path)
 
-    $parent = Split-Path -LiteralPath $Path -Parent
-    $leaf = Split-Path -LiteralPath $Path -Leaf
-    $destination = Join-Path $parent ".$leaf.runner-image-removed-$quarantineSuffix"
     Write-Host "Quarantining $Path"
     try {
-        Move-Item -LiteralPath $Path -Destination $destination -Force -ErrorAction Stop
+        $leaf = (Get-Item -LiteralPath $Path -ErrorAction Stop).Name
+        $newName = ".$leaf.runner-image-removed-$quarantineSuffix"
+        Rename-Item -LiteralPath $Path -NewName $newName -Force -ErrorAction Stop
     }
     catch {
         Write-Warning "Could not quarantine ${Path}: $_"
