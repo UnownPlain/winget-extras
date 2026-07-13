@@ -95,6 +95,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             .github/workflows/validate.ps1
+            .github/workflows/reset-runner-image.ps1
             .github/workflows/analyses.json
             ${{ matrix.installer.path }}
 
@@ -106,7 +107,22 @@ jobs:
           $cli = Get-ChildItem asa-pkg/Microsoft.CST.AttackSurfaceAnalyzer.CLI.*.nupkg | Select-Object -First 1
           $version = $cli.BaseName -replace '^Microsoft\.CST\.AttackSurfaceAnalyzer\.CLI\.', ''
           dotnet tool install --global --add-source asa-pkg Microsoft.CST.AttackSurfaceAnalyzer.CLI --version $version
+
+          # Keep ASA working after the preinstalled .NET installation is removed.
+          $runtimeConfig = Get-ChildItem "$env:USERPROFILE\.dotnet\tools\.store" -Filter '*.runtimeconfig.json' -Recurse |
+            Where-Object FullName -Like '*attacksurfaceanalyzer*' |
+            Select-Object -First 1
+          $runtimeVersion = (Get-Content $runtimeConfig | ConvertFrom-Json).runtimeOptions.framework.version
+          $runtimeChannel = ($runtimeVersion -split '\.')[0..1] -join '.'
+          Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile "$env:RUNNER_TEMP\dotnet-install.ps1"
+          & "$env:RUNNER_TEMP\dotnet-install.ps1" -Channel $runtimeChannel -Runtime dotnet -InstallDir "$env:RUNNER_TEMP\dotnet"
+          # Run validation from a private PowerShell copy so the image-wide copy
+          # can be removed by the reset without deleting the active shell.
+          Copy-Item $PSHOME "$env:RUNNER_TEMP\pwsh" -Recurse
+          "DOTNET_ROOT=$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_ENV
+          "$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_PATH
           "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
+          "$env:RUNNER_TEMP\pwsh" >> $env:GITHUB_PATH
 
       - name: Get image version
         id: image-version
@@ -124,12 +140,14 @@ jobs:
 
       - name: Validate
         id: validate
+        shell: powershell
         run: |
-          ./.github/workflows/validate.ps1 `
+          & "$env:RUNNER_TEMP\pwsh\pwsh.exe" -NoLogo -NoProfile -File ./.github/workflows/validate.ps1 `
             -ManifestPath $env:MANIFEST_PATH `
             -Arch $env:ARCH `
             -Scope $env:SCOPE `
             -InstallerType $env:INSTALLER_TYPE
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
         env:
           MANIFEST_PATH: ${{ matrix.installer.path }}
           ARCH: ${{ matrix.installer.arch }}
@@ -139,6 +157,7 @@ jobs:
 
       - name: Print logs
         if: always()
+        shell: powershell
         working-directory: ${{ runner.temp }}\artifacts
         run: |
           Get-ChildItem "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-*.log", "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-installer.log" -Recurse -File | select -Unique | ForEach-Object {
@@ -168,6 +187,7 @@ jobs:
 
       - name: Add validation logs to job summary
         if: always()
+        shell: powershell
         env:
           ARTIFACT_NAME: ${{ steps.validate.outputs.artifact_name }}
           SCREENSHOT_URL: ${{ steps.screenshot.outputs.artifact-url }}

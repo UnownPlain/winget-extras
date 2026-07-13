@@ -80,6 +80,10 @@ $wingetSettings | ConvertTo-Json -Depth 100 | Set-Content -Path "$env:LOCALAPPDA
 winget settings --enable LocalManifestFiles
 winget settings --enable LocalArchiveMalwareScanOverride
 
+# Remove the development software baked into GitHub-hosted Windows images so
+# package installation is validated against a clean OS rather than a dev image.
+& "$PSScriptRoot\reset-runner-image.ps1"
+
 $programFilesBefore = Get-ChildItem $env:ProgramFiles -Directory | Select-Object -ExpandProperty FullName
 $programFilesx86Before = Get-ChildItem ${env:ProgramFiles(x86)} -Directory | Select-Object -ExpandProperty FullName
 $analyzerArgs = @(
