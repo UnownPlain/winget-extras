@@ -3,6 +3,22 @@ param()
 
 $ErrorActionPreference = 'Continue'
 $ProgressPreference = 'SilentlyContinue'
+$quarantineSuffix = [Guid]::NewGuid().ToString('N')
+
+function Move-ToQuarantine {
+    param([Parameter(Mandatory)][string]$Path)
+
+    $parent = Split-Path -LiteralPath $Path -Parent
+    $leaf = Split-Path -LiteralPath $Path -Leaf
+    $destination = Join-Path $parent ".$leaf.runner-image-removed-$quarantineSuffix"
+    Write-Host "Quarantining $Path"
+    try {
+        Move-Item -LiteralPath $Path -Destination $destination -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Could not quarantine ${Path}: $_"
+    }
+}
 
 function Get-InstalledPrograms {
     $registryPaths = @(
@@ -33,7 +49,7 @@ Write-Host 'Stopping services installed by runner-images'
 }
 
 # Native uninstallers take 15-20 minutes on hosted images. These runners are
-# disposable, so remove their package registrations and payloads directly.
+# disposable, so remove registrations and quarantine payloads at their source.
 $programs = @(Get-InstalledPrograms)
 $installLocations = $programs | ForEach-Object {
     # Keep Windows components and the WinGet client used by validation.
@@ -84,7 +100,6 @@ $paths = @(
     "$env:ProgramFiles\CMake",
     "$env:ProgramFiles\Docker",
     "$env:ProgramFiles\Eclipse Adoptium",
-    "$env:ProgramFiles\Git",
     "$env:ProgramFiles\GitHub CLI",
     "$env:ProgramFiles\Java",
     "$env:ProgramFiles\LLVM",
@@ -99,7 +114,6 @@ $paths = @(
     "$env:ProgramFiles\R",
     "${env:ProgramFiles(x86)}\Android",
     "${env:ProgramFiles(x86)}\CMake",
-    "${env:ProgramFiles(x86)}\Git",
     "${env:ProgramFiles(x86)}\GitHub CLI",
     "${env:ProgramFiles(x86)}\Microsoft SDKs",
     "${env:ProgramFiles(x86)}\Microsoft Visual Studio",
@@ -127,6 +141,12 @@ $protectedPaths = @(
     $env:GITHUB_WORKSPACE
 ) | Where-Object { $_ } | ForEach-Object { $_.TrimEnd('\') }
 
+# actions/checkout resolves this path again during its post-job cleanup.
+$protectedPaths += @(
+    "$env:ProgramFiles\Git",
+    "${env:ProgramFiles(x86)}\Git"
+) | Where-Object { $_ } | ForEach-Object { $_.TrimEnd('\') }
+
 $protectedPrefixes = @(
     $env:SystemRoot,
     $env:USERPROFILE,
@@ -144,8 +164,7 @@ $paths = (@($paths) + @($safeInstallLocations)) | Where-Object { $_ } | Select-O
 foreach ($path in $paths) {
     $path = $path.TrimEnd('\')
     if ($path -notin $protectedPaths -and $path.Length -gt 3 -and (Test-Path -LiteralPath $path)) {
-        Write-Host "Removing $path"
-        & cmd.exe /d /c "rd /s /q `"$path`""
+        Move-ToQuarantine $path
     }
 }
 
@@ -158,8 +177,7 @@ foreach ($path in $paths) {
 # and frameworks can therefore be removed with the rest of the developer image.
 $dotnetRoot = Join-Path $env:ProgramFiles 'dotnet'
 if (Test-Path -LiteralPath $dotnetRoot) {
-    Write-Host "Removing $dotnetRoot"
-    & cmd.exe /d /c "rd /s /q `"$dotnetRoot`""
+    Move-ToQuarantine $dotnetRoot
 }
 
 Write-Host 'Runner image reset complete'
