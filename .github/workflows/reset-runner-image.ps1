@@ -15,7 +15,15 @@ function Move-ToQuarantine {
         Rename-Item -LiteralPath $Path -NewName $newName -Force -ErrorAction Stop
     }
     catch {
-        Write-Warning "Could not quarantine ${Path}: $_"
+        Write-Host "Taking ownership of protected path $Path"
+        & takeown.exe /f $Path /a /r /d Y | Out-Null
+        & icacls.exe $Path /grant '*S-1-5-32-544:(OI)(CI)F' /t /c /q | Out-Null
+        try {
+            Rename-Item -LiteralPath $Path -NewName $newName -Force -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Could not quarantine ${Path}: $_"
+        }
     }
 }
 
