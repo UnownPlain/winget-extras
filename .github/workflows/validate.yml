@@ -11,6 +11,21 @@ on:
         description: 'Package version (e.g., 1.0)'
         required: true
         type: string
+      architecture:
+        description: 'Installer architecture to test'
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - x86
+          - x64
+          - arm64
+      prepare_arm64_baseline:
+        description: 'Build the cached Windows 11 ARM64 baseline instead of validating'
+        required: false
+        default: false
+        type: boolean
   pull_request:
     paths:
       - 'manifests/**'
@@ -22,11 +37,16 @@ on:
 permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name == 'workflow_dispatch' && inputs.architecture || 'all' }}
   cancel-in-progress: true
 
 jobs:
+  prepare:
+    if: inputs.prepare_arm64_baseline
+    uses: ./.github/workflows/prepare-validation-vm.yml
+
   detect:
+    if: ${{ !inputs.prepare_arm64_baseline }}
     name: Detect
     runs-on: ubuntu-slim
     outputs:
@@ -54,6 +74,7 @@ jobs:
         env:
           PACKAGE_ID: ${{ inputs.package_id || 'Microsoft.ConfigMgr.SupportCenter' }}
           VERSION: ${{ inputs.version || '5.2509.1065.1000' }}
+          ARCHITECTURE: ${{ inputs.architecture }}
           CHANGED: ${{ steps.changed.outputs.all_changed_files }}
         run: |
           Install-Module powershell-yaml -Force
@@ -67,7 +88,9 @@ jobs:
           $installers = $packages | ForEach-Object {
             $manifestPath = Get-ChildItem $_ -Filter *.installer.yaml
             $manifest = $manifestPath | Get-Content | ConvertFrom-Yaml
-            $manifest.Installers | ForEach-Object {
+            $manifest.Installers | Where-Object {
+              $env:ARCHITECTURE -in @('', 'all', $_.Architecture)
+            } | ForEach-Object {
               @{
                 path = $manifestPath | Resolve-Path -Relative;
                 arch = $_.Architecture;
@@ -81,7 +104,9 @@ jobs:
   validate:
     name: Installation Validation
     needs: detect
-    runs-on: ${{ matrix.installer.arch == 'arm64' && 'windows-11-arm' || 'windows-latest' }}
+    if: ${{ !inputs.prepare_arm64_baseline }}
+    runs-on: ${{ matrix.installer.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    timeout-minutes: ${{ matrix.installer.arch == 'arm64' && 20 || 60 }}
     strategy:
       fail-fast: false
       matrix:
@@ -94,42 +119,37 @@ jobs:
         with:
           persist-credentials: false
           sparse-checkout: |
+            .github/workflows/validate-vm.sh
+            .github/workflows/validate-vm.Dockerfile
+            .github/workflows/validate-bootstrap.ps1
+            .github/workflows/install-validation-dependencies.ps1
             .github/workflows/validate.ps1
             .github/workflows/analyses.json
             ${{ matrix.installer.path }}
-
-      - name: Install Attack Surface Analyzer
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release download latest --repo pl4nty/AttackSurfaceAnalyzer --pattern '*.nupkg' --dir asa-pkg
-          $cli = Get-ChildItem asa-pkg/Microsoft.CST.AttackSurfaceAnalyzer.CLI.*.nupkg | Select-Object -First 1
-          $version = $cli.BaseName -replace '^Microsoft\.CST\.AttackSurfaceAnalyzer\.CLI\.', ''
-          dotnet tool install --global --add-source asa-pkg Microsoft.CST.AttackSurfaceAnalyzer.CLI --version $version
-          "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
-
-      - name: Get image version
-        id: image-version
-        run: '"version=$env:ImageVersion" >> $env:GITHUB_OUTPUT'
-
-      # - name: Restore Attack Surface Analyzer database
-      #   uses: actions/cache@v5
-      #   with:
-      #     path: ${{ github.workspace }}/asa.sqlite*
-      #     key: asa-baseline-${{ runner.os }}-${{ runner.arch }}-${{ steps.image-version.outputs.version }}
 
       - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: audit
 
+      - name: Restore ARM64 Windows baseline
+        if: matrix.installer.arch == 'arm64'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/windows-arm64-baseline
+          key: windows-11-ltsc-arm64-validation-v1
+          fail-on-cache-miss: true
+
+      - name: Free disk space for Windows VM
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/share/dotnet
+          docker system prune --all --force
+
       - name: Validate
         id: validate
+        shell: bash
         run: |
-          ./.github/workflows/validate.ps1 `
-            -ManifestPath $env:MANIFEST_PATH `
-            -Arch $env:ARCH `
-            -Scope $env:SCOPE `
-            -InstallerType $env:INSTALLER_TYPE
+          bash ./.github/workflows/validate-vm.sh
         env:
           MANIFEST_PATH: ${{ matrix.installer.path }}
           ARCH: ${{ matrix.installer.arch }}
@@ -139,7 +159,7 @@ jobs:
 
       - name: Print logs
         if: always()
-        working-directory: ${{ runner.temp }}\artifacts
+        working-directory: ${{ runner.temp }}/artifacts
         run: |
           Get-ChildItem "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-*.log", "$env:STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME-installer.log" -Recurse -File | select -Unique | ForEach-Object {
             Write-Host "::group::$($_.Name)"
@@ -149,12 +169,20 @@ jobs:
         env:
           STEPS_VALIDATE_OUTPUTS_ARTIFACT_NAME: ${{ steps.validate.outputs.artifact_name }}
 
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ steps.validate.outputs.artifact_name || format('validation-{0}', matrix.installer.arch) }}
+          path: ${{ runner.temp }}/artifacts
+          if-no-files-found: error
+
       - name: Upload screenshot
         id: screenshot
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}.png
+          path: ${{ runner.temp }}/artifacts/${{ steps.validate.outputs.artifact_name }}.png
           if-no-files-found: ignore
           archive: false
 
@@ -163,7 +191,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.validate.outputs.artifact_name }}-asa
-          path: ${{ runner.temp }}\artifacts\${{ steps.validate.outputs.artifact_name }}-asa.sarif
+          path: ${{ runner.temp }}/artifacts/${{ steps.validate.outputs.artifact_name }}-asa.sarif
           if-no-files-found: ignore
 
       - name: Add validation logs to job summary

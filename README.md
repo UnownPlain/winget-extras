@@ -46,6 +46,14 @@ Packages are validated automatically using [GitHub Actions](https://github.com/p
 - Interactive installation is only tested if silent installation fails
 - The `arm` architecture (32-bit ARM) is not tested
 
+Automated installation validation runs in a fresh Windows 11 QEMU virtual machine on a
+GitHub-hosted Linux runner. x64 guests use `ubuntu-latest`, while ARM64 guests use
+`ubuntu-24.04-arm`. Validation artifacts are copied out through a host-only shared folder before
+the VM is destroyed. KVM accelerates x64 guests. Because standard ARM64 runners do not expose
+KVM, ARM64 validation boots a fresh copy-on-write disk from a cached, package-neutral Windows 11
+baseline prepared by the `prepare-validation-vm` workflow. The immutable baseline is never
+modified by validation.
+
 Try validation yourself with these commands.
 
 ```sh

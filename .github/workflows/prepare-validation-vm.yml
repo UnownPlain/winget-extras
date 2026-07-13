@@ -1,0 +1,53 @@
+name: prepare-validation-vm
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: prepare-validation-vm-arm64
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare ARM64 Windows 11 baseline
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github/workflows/prepare-validation-vm.sh
+            .github/workflows/prepare-validation-vm.ps1
+            .github/workflows/validation-startup.ps1
+            .github/workflows/install-validation-dependencies.ps1
+            .github/workflows/validate-vm.Dockerfile
+
+      - name: Restore baseline
+        id: baseline
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/windows-arm64-baseline
+          key: windows-11-ltsc-arm64-validation-v1
+
+      - name: Free disk space
+        if: steps.baseline.outputs.cache-hit != 'true'
+        run: |
+          sudo rm -rf /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/share/dotnet
+          docker system prune --all --force
+
+      - name: Build baseline
+        if: steps.baseline.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/prepare-validation-vm.sh
+
+      - name: Save baseline
+        if: steps.baseline.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/windows-arm64-baseline
+          key: windows-11-ltsc-arm64-validation-v1
