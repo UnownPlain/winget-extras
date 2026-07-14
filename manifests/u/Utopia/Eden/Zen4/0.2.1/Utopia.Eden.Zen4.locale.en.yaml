@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
+
+PackageIdentifier: Utopia.Eden.Zen4
+PackageVersion: 0.2.1
+PackageLocale: en
+Publisher: Utopia LLC
+PackageName: Eden (AMD Zen 4)
+PackageUrl: https://git.eden-emu.dev/eden-emu/eden
+License: GPLv3
+LicenseUrl: https://git.eden-emu.dev/eden-emu/eden/src/branch/master/LICENSE.txt
+ShortDescription: The Eden Nintendo Switch Emulator.
+Description: |-
+  Eden is a free and open-source (FOSS) Switch 1 emulator, derived from Yuzu and Sudachi - started by developer Camille LaVey. It's written in C++ with portability in mind, with builds for Windows, Linux, macOS, Android, FreeBSD and more.
+
+  The Zen 4 builds require an AMD Ryzen 7xxx-series CPU and up, or a relatively recent AMD tablet (e.g. ASUS ROG Ally X, Lenovo Legion Go S).
+Moniker: edenzen4
+Tags:
+- emulator
+- nintendo-switch-1
+- nintendoswitch1
+- requires-decryption-keys
+- requires-firmware
+- utopia-eden-zen-4
+- utopiaedenzen4
+- requires-amd
+- amd-zen-4
+- amdzen4
+Agreements:
+- Agreement: "This package is untested, as no test environment was available. Please report any issues here: https://github.com/pl4nty/winget-extras/issues/new?template=package_issue.yml"
+ManifestType: defaultLocale
+ManifestVersion: 1.12.0
