@@ -119,6 +119,26 @@ jobs:
           # Run validation from a private PowerShell copy so the image-wide copy
           # can be removed by the reset without deleting the active shell.
           Copy-Item $PSHOME "$env:RUNNER_TEMP\pwsh" -Recurse
+
+          # Keep the validation executables independent from the image-wide
+          # Visual C++ runtime. Package processes must not inherit these copies,
+          # so place them beside only the executables that need to survive reset.
+          $privateExecutableDirectories = @(
+            "$env:RUNNER_TEMP\pwsh",
+            "$env:RUNNER_TEMP\dotnet",
+            "$env:USERPROFILE\.dotnet\tools"
+          )
+          @(
+            'concrt140.dll', 'msvcp140*.dll', 'vcamp140.dll',
+            'vccorlib140.dll', 'vcomp140.dll', 'vcruntime140*.dll'
+          ) | ForEach-Object {
+            Get-ChildItem "$env:SystemRoot\System32\$_" -File -ErrorAction SilentlyContinue |
+              ForEach-Object {
+                foreach ($directory in $privateExecutableDirectories) {
+                  Copy-Item $_.FullName $directory -Force
+                }
+              }
+          }
           "DOTNET_ROOT=$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_ENV
           "$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_PATH
           "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
