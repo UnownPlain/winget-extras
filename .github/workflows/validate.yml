@@ -112,6 +112,7 @@ jobs:
           $runtimeConfig = Get-ChildItem "$env:USERPROFILE\.dotnet\tools\.store" -Filter '*.runtimeconfig.json' -Recurse |
             Where-Object FullName -Like '*attacksurfaceanalyzer*' |
             Select-Object -First 1
+          $asaDll = $runtimeConfig.FullName -replace '\.runtimeconfig\.json$', '.dll'
           $runtimeVersion = (Get-Content $runtimeConfig | ConvertFrom-Json).runtimeOptions.framework.version
           $runtimeChannel = ($runtimeVersion -split '\.')[0..1] -join '.'
           Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile "$env:RUNNER_TEMP\dotnet-install.ps1"
@@ -125,8 +126,7 @@ jobs:
           # so place them beside only the executables that need to survive reset.
           $privateExecutableDirectories = @(
             "$env:RUNNER_TEMP\pwsh",
-            "$env:RUNNER_TEMP\dotnet",
-            "$env:USERPROFILE\.dotnet\tools"
+            "$env:RUNNER_TEMP\dotnet"
           )
           @(
             'concrt140.dll', 'msvcp140*.dll', 'vcamp140.dll',
@@ -139,6 +139,7 @@ jobs:
                 }
               }
           }
+          "ASA_DLL=$asaDll" >> $env:GITHUB_ENV
           "DOTNET_ROOT=$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_ENV
 
       - name: Get image version

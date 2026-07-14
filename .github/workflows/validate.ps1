@@ -15,7 +15,7 @@ function New-Screenshot([string]$Path) {
 }
 
 Install-Module powershell-yaml -Force
-$asa = Join-Path $env:USERPROFILE '.dotnet\tools\asa.exe'
+$dotnet = Join-Path $env:RUNNER_TEMP 'dotnet\dotnet.exe'
 
 $artifacts = "$env:RUNNER_TEMP\artifacts"
 New-Item $artifacts -ItemType Directory -Force | Out-Null
@@ -104,7 +104,7 @@ $wingetArgs = @(
 
 if (-not (Test-Path asa.sqlite)) {
     Write-Host "asa collect --runid baseline $analyzerArgs"
-    & $asa collect --runid baseline $analyzerArgs
+    & $dotnet $env:ASA_DLL collect --runid baseline $analyzerArgs
 }
 $installer = Start-Process winget -ArgumentList $wingetArgs -PassThru -NoNewWindow
 # 2GB+ zips like Cinebench need longer than 2 mins to extract
@@ -131,8 +131,8 @@ $programFilesAdded = Get-ChildItem $env:ProgramFiles -Directory | Select-Object 
 $programFilesx86Added = Get-ChildItem ${env:ProgramFiles(x86)} -Directory | Select-Object -ExpandProperty FullName | Where-Object { $_ -notin $programFilesx86Before }
 $analyzerArgs[-1] = @($analyzerArgs[-1]) + $programFilesAdded + $programFilesx86Added -join ","
 Write-Host "asa collect --overwrite --runid installed $analyzerArgs"
-& $asa collect --overwrite --runid installed $analyzerArgs
-& $asa export-collect --firstrunid baseline --secondrunid installed --outputsarif --filename "$PSScriptRoot\analyses.json"
+& $dotnet $env:ASA_DLL collect --overwrite --runid installed $analyzerArgs
+& $dotnet $env:ASA_DLL export-collect --firstrunid baseline --secondrunid installed --outputsarif --filename "$PSScriptRoot\analyses.json"
 Move-Item baseline_vs_installed_summary.sarif "$artifacts\$artifactName-asa.sarif" -Force
 
 # TODO validate multiple NestedInstallerFiles
@@ -173,6 +173,8 @@ if ($appPath) {
     # it so the package's own loader error is visible in the artifact.
     Get-Process | Where-Object MainWindowTitle -EQ 'System Properties' |
         Stop-Process -Force -ErrorAction SilentlyContinue
+    Stop-Process -Name SystemPropertiesAdvanced, SystemPropertiesPerformance -Force -ErrorAction SilentlyContinue
+    & taskkill.exe /F /FI 'WINDOWTITLE eq System Properties' 2>$null | Out-Null
 
     Write-Host "Starting $appPath"
     # https://github.com/PowerShell/PowerShell/issues/10996
