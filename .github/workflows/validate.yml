@@ -140,9 +140,6 @@ jobs:
               }
           }
           "DOTNET_ROOT=$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_ENV
-          "$env:RUNNER_TEMP\dotnet" >> $env:GITHUB_PATH
-          "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
-          "$env:RUNNER_TEMP\pwsh" >> $env:GITHUB_PATH
 
       - name: Get image version
         id: image-version

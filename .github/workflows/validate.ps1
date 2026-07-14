@@ -15,6 +15,7 @@ function New-Screenshot([string]$Path) {
 }
 
 Install-Module powershell-yaml -Force
+$asa = Join-Path $env:USERPROFILE '.dotnet\tools\asa.exe'
 
 $artifacts = "$env:RUNNER_TEMP\artifacts"
 New-Item $artifacts -ItemType Directory -Force | Out-Null
@@ -103,7 +104,7 @@ $wingetArgs = @(
 
 if (-not (Test-Path asa.sqlite)) {
     Write-Host "asa collect --runid baseline $analyzerArgs"
-    asa collect --runid baseline $analyzerArgs
+    & $asa collect --runid baseline $analyzerArgs
 }
 $installer = Start-Process winget -ArgumentList $wingetArgs -PassThru -NoNewWindow
 # 2GB+ zips like Cinebench need longer than 2 mins to extract
@@ -130,8 +131,8 @@ $programFilesAdded = Get-ChildItem $env:ProgramFiles -Directory | Select-Object 
 $programFilesx86Added = Get-ChildItem ${env:ProgramFiles(x86)} -Directory | Select-Object -ExpandProperty FullName | Where-Object { $_ -notin $programFilesx86Before }
 $analyzerArgs[-1] = @($analyzerArgs[-1]) + $programFilesAdded + $programFilesx86Added -join ","
 Write-Host "asa collect --overwrite --runid installed $analyzerArgs"
-asa collect --overwrite --runid installed $analyzerArgs
-asa export-collect --firstrunid baseline --secondrunid installed --outputsarif --filename "$PSScriptRoot\analyses.json"
+& $asa collect --overwrite --runid installed $analyzerArgs
+& $asa export-collect --firstrunid baseline --secondrunid installed --outputsarif --filename "$PSScriptRoot\analyses.json"
 Move-Item baseline_vs_installed_summary.sarif "$artifacts\$artifactName-asa.sarif" -Force
 
 # TODO validate multiple NestedInstallerFiles
@@ -167,6 +168,11 @@ if ($appPath) {
     # desktop. Mark privacy consent complete and close the OOBE host so it doesn't reappear.
     Set-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE' -Name PrivacyConsentStatus -Value 1 -Type DWord -Force -ErrorAction SilentlyContinue
     Stop-Process -Name WWAHost, FirstLogonAnim -Force -ErrorAction SilentlyContinue
+
+    # Hosted GUI sessions can surface an unrelated paging-file warning. Close
+    # it so the package's own loader error is visible in the artifact.
+    Get-Process | Where-Object MainWindowTitle -EQ 'System Properties' |
+        Stop-Process -Force -ErrorAction SilentlyContinue
 
     Write-Host "Starting $appPath"
     # https://github.com/PowerShell/PowerShell/issues/10996

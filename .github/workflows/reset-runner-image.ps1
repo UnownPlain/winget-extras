@@ -46,8 +46,9 @@ function Get-InstalledPrograms {
 
 Write-Host 'Stopping services installed by runner-images'
 @(
-    'apache*', 'docker', 'mongodb*', 'mysql*', 'nginx*', 'postgresql*',
-    'ServiceFabric*', 'ssh-agent', 'w3svc'
+    'apache*', 'docker', 'FabricHostSvc', 'mongodb*', 'MsDtsServer*',
+    'MSSQL*', 'mysql*', 'nginx*', 'postgresql*', 'ServiceFabric*',
+    'SQL*', 'SSAS*', 'SSIS*', 'ssh-agent', 'w3svc'
 ) | ForEach-Object {
     Get-Service -Name $_ -ErrorAction SilentlyContinue | ForEach-Object {
         Stop-Service -Name $_.Name -Force -ErrorAction SilentlyContinue
@@ -186,11 +187,17 @@ foreach ($path in $paths) {
 Write-Host 'Quarantining Visual C++ redistributable runtime files'
 $visualCppRuntimePatterns = @(
     'concrt140.dll',
-    'msvcp140*.dll',
+    'msvcp140.dll',
+    'msvcp140_1.dll',
+    'msvcp140_2.dll',
+    'msvcp140_atomic_wait.dll',
+    'msvcp140_codecvt_ids.dll',
     'vcamp140.dll',
     'vccorlib140.dll',
     'vcomp140.dll',
-    'vcruntime140*.dll'
+    'vcruntime140.dll',
+    'vcruntime140_1.dll',
+    'vcruntime140_threads.dll'
 )
 @(
     "$env:SystemRoot\System32",
