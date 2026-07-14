@@ -180,6 +180,30 @@ foreach ($path in $paths) {
     "$env:SystemRoot\System32\docker.exe"
 ) | Remove-Item -Force -ErrorAction SilentlyContinue
 
+# Visual C++ redistributables install shared payloads into Windows rather than
+# their registered InstallLocation. Quarantine those payloads too; otherwise
+# packages can accidentally consume the runner image's preinstalled runtime.
+Write-Host 'Quarantining Visual C++ redistributable runtime files'
+$visualCppRuntimePatterns = @(
+    'concrt140.dll',
+    'msvcp140*.dll',
+    'vcamp140.dll',
+    'vccorlib140.dll',
+    'vcomp140.dll',
+    'vcruntime140*.dll'
+)
+@(
+    "$env:SystemRoot\System32",
+    "$env:SystemRoot\SysWOW64"
+) | ForEach-Object {
+    $systemDirectory = $_
+    $visualCppRuntimePatterns | ForEach-Object {
+        Get-ChildItem (Join-Path $systemDirectory $_) -File -ErrorAction SilentlyContinue
+    }
+} | Sort-Object FullName -Unique | ForEach-Object {
+    Move-ToQuarantine $_.FullName
+}
+
 # The validation uses a private runtime under RUNNER_TEMP. The image-wide SDKs
 # and frameworks can therefore be removed with the rest of the developer image.
 $dotnetRoot = Join-Path $env:ProgramFiles 'dotnet'
