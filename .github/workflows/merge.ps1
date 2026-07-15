@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 
-$tempRoot = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
+$tempRoot = '/dev/shm'
 $tempManifests = Join-Path $tempRoot 'manifests'
 $tempDependencies = Join-Path $tempRoot 'winget-extras-dependencies'
 
