@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: SILGlobal.Kedebideri
+PackageVersion: "3.001"
+ReleaseDate: 2025-09-12
+InstallerType: zip
+NestedInstallerType: font
+NestedInstallerFiles:
+- RelativeFilePath: Kedebideri-3.001\Kedebideri-Black.ttf
+- RelativeFilePath: Kedebideri-3.001\Kedebideri-Bold.ttf
+- RelativeFilePath: Kedebideri-3.001\Kedebideri-ExtraBold.ttf
+- RelativeFilePath: Kedebideri-3.001\Kedebideri-Medium.ttf
+- RelativeFilePath: Kedebideri-3.001\Kedebideri-Regular.ttf
+- RelativeFilePath: Kedebideri-3.001\Kedebideri-SemiBold.ttf
+Installers:
+- Architecture: neutral
+  InstallerUrl: https://software.sil.org/downloads/r/kedebideri/Kedebideri-3.001.zip
+  InstallerSha256: 1B92853B43606AC3D45E11D34D47836663D5EC48617AB8F931F1A8783E3BFAB3
+ManifestType: installer
+ManifestVersion: 1.28.0
