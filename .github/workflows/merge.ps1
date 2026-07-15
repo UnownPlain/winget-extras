@@ -22,14 +22,6 @@ $dependencies = @(
 '@ @installerFiles
 )
 
-$token = $env:GH_TOKEN
-if (-not $token) {
-  $token = & gh auth token
-  if ($LASTEXITCODE -ne 0) {
-    throw 'GitHub authentication is required to resolve dependencies'
-  }
-}
-
 $missingDependencies = @(
   foreach ($dependency in $dependencies) {
     $first = $dependency.Substring(0, 1).ToLowerInvariant()
@@ -50,6 +42,14 @@ $missingDependencies = @(
 )
 
 if ($missingDependencies) {
+  $token = $env:GH_TOKEN
+  if (-not $token) {
+    $token = & gh auth token
+    if ($LASTEXITCODE -ne 0) {
+      throw 'GitHub authentication is required to resolve dependencies'
+    }
+  }
+
   $headers = @{
     Accept                 = 'application/vnd.github+json'
     Authorization          = "Bearer $token"
@@ -57,44 +57,64 @@ if ($missingDependencies) {
     'X-GitHub-Api-Version' = '2026-03-10'
   }
 
-  $missingDependencies | ForEach-Object -ThrottleLimit 8 -Parallel {
-    $ErrorActionPreference = 'Stop'
-    $item = $_
-    $encodePath = {
-      param([string]$Path)
-      ($Path.Split('/') | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+  function Invoke-GitHubTreeQuery {
+    param(
+      [Parameter(Mandatory)] [object[]] $Items,
+      [switch] $IncludeContent
+    )
+
+    $definitions = [Collections.Generic.List[string]]::new()
+    $definitions.Add('$owner: String!')
+    $definitions.Add('$repo: String!')
+    $fields = [Collections.Generic.List[string]]::new()
+    $variables = @{ owner = 'microsoft'; repo = 'winget-pkgs' }
+
+    for ($index = 0; $index -lt $Items.Count; $index++) {
+      $variable = "expression$index"
+      $definitions.Add("`$$variable`: String!")
+      $variables[$variable] = "master:$($Items[$index].Path)"
+      $selection = if ($IncludeContent) {
+        'entries { name type object { ... on Blob { text } } }'
+      }
+      else {
+        'entries { name type }'
+      }
+      $fields.Add("dependency$index`: object(expression: `$$variable) { ... on Tree { $selection } }")
     }
 
-    $apiBase = 'https://api.github.com/repos/microsoft/winget-pkgs/contents'
-    $versions = Invoke-RestMethod `
-      -Headers $using:headers `
-      -Uri "$apiBase/$(& $encodePath $item.Path)"
-    $version = $versions |
-    Where-Object type -eq 'dir' |
+    $query = "query($($definitions -join ', ')) { repository(owner: `$owner, name: `$repo) { $($fields -join ' ') } }"
+    $body = @{ query = $query; variables = $variables } | ConvertTo-Json -Compress
+    $response = Invoke-RestMethod -Method Post -Headers $headers -Uri 'https://api.github.com/graphql' -Body $body -ContentType 'application/json'
+    if ($response.errors) {
+      throw "GitHub dependency query failed: $($response.errors.message -join '; ')"
+    }
+    $response.data.repository
+  }
+
+  $versionTrees = Invoke-GitHubTreeQuery -Items $missingDependencies
+  for ($index = 0; $index -lt $missingDependencies.Count; $index++) {
+    $item = $missingDependencies[$index]
+    $version = $versionTrees."dependency$index".entries |
+    Where-Object type -eq 'tree' |
     Select-Object -ExpandProperty name |
     & sort --version-sort |
     Select-Object -Last 1
     if (-not $version) {
       throw "No version found for dependency $($item.Dependency)"
     }
+    $item.Path = "$($item.Path)/$version"
+  }
 
-    $path = "$($item.Path)/$version"
-    $files = Invoke-RestMethod `
-      -Headers $using:headers `
-      -Uri "$apiBase/$(& $encodePath $path)" |
-    Where-Object { $_.type -eq 'file' -and $_.name -like '*.yaml' }
-    $destination = Join-Path $using:tempDependencies $path
+  $manifestTrees = Invoke-GitHubTreeQuery -Items $missingDependencies -IncludeContent
+  for ($index = 0; $index -lt $missingDependencies.Count; $index++) {
+    $item = $missingDependencies[$index]
+    $files = $manifestTrees."dependency$index".entries |
+    Where-Object { $_.type -eq 'blob' -and $_.name -like '*.yaml' }
+    $destination = Join-Path $tempDependencies $item.Path
     New-Item $destination -ItemType Directory -Force | Out-Null
-
-    $curlArguments = @(
-      '--fail', '--silent', '--show-error', '--location', '--parallel'
-      '--write-out', '%{onerror}%{url_effective} failed: HTTP %{http_code} %{errormsg}\n'
-    )
     foreach ($file in $files) {
-      $uri = "https://cdn.jsdelivr.net/gh/microsoft/winget-pkgs@master/$(& $encodePath "$path/$($file.name)")"
-      $curlArguments += @('--output', (Join-Path $destination $file.name), $uri)
+      [IO.File]::WriteAllText((Join-Path $destination $file.name), $file.object.text)
     }
-    & curl @curlArguments
   }
 }
 
