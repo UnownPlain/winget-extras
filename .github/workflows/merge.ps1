@@ -112,7 +112,7 @@ $yqExpression = @'
 
 $normalizedTempManifests = $tempManifests.Replace('\', '/')
 $env:TMP_MANIFESTS = $normalizedTempManifests
-$splitExpression = 'strenv(TMP_MANIFESTS) + "/" + .PackageIdentifier + "-" + .PackageVersion + ".yaml"'
+$splitExpression = 'strenv(TMP_MANIFESTS) + "/" + .PackageIdentifier + "-" + (.PackageVersion | tostring) + ".yaml"'
 $packageGroups = @(
   Get-ChildItem manifests, fonts, $tempDependencies -Filter '*.yaml' -File -Recurse |
   Group-Object DirectoryName
