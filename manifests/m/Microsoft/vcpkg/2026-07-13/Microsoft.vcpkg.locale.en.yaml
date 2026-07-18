@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.vcpkg
+PackageVersion: 2026-07-13
+PackageLocale: en
+Publisher: Microsoft
+PackageName: vcpkg (.exe version)
+PackageUrl: https://github.com/microsoft/vcpkg
+License: MIT
+ShortDescription: A free and open-source C/C++ package manager maintained by Microsoft and the C++ community.
+Description: A free and open-source C/C++ package manager maintained by Microsoft and the C++ community.
+InstallationNotes: Please set the VCPKG_ROOT environment variable to the path to a cloned copy of https://github.com/Microsoft/vcpkg
+Moniker: vcpkg
+Tags:
+- vc-pkg
+- vcpkg-tool
+- visual-cplusplus-package-manager
+- visualc++packagemanager
+- requirescmd
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0

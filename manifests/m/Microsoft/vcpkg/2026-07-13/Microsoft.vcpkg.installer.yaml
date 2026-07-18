@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.vcpkg
+PackageVersion: 2026-07-13
+ReleaseDate: 2026-07-13
+InstallerType: portable
+Installers:
+- Architecture: x64
+  InstallerUrl: https://github.com/microsoft/vcpkg-tool/releases/download/2026-07-13/vcpkg.exe
+  InstallerSha256: 67958C6A13A35130FF8035BEF33097FFE3376A6708577A826CFA41FA592DB611
+  AppsAndFeaturesEntries:
+  - DisplayName: vcpkg (.exe version, x64)
+- Architecture: arm64
+  InstallerUrl: https://github.com/microsoft/vcpkg-tool/releases/download/2026-07-13/vcpkg-arm64.exe
+  InstallerSha256: 8d87ed438db65b0015f624693612cb79d8c35908348c194984c23b63a2da0211
+  AppsAndFeaturesEntries:
+  - DisplayName: vcpkg (.exe version, ARM64)
+ManifestType: installer
+ManifestVersion: 1.28.0
