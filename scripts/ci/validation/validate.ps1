@@ -9,6 +9,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
+. (Join-Path $PSScriptRoot 'arp.ps1')
 
 function New-Screenshot {
     [CmdletBinding(SupportsShouldProcess)]
@@ -366,8 +367,9 @@ asa export-collect `
     --secondrunid installed `
     --outputsarif `
     --filename (Join-Path $PSScriptRoot 'analyses.json')
+$sarifPath = Join-Path $artifactDirectory "$ArtifactName-asa.sarif"
 Move-Item baseline_vs_installed_summary.sarif `
-(Join-Path $artifactDirectory "$ArtifactName-asa.sarif") `
+    $sarifPath `
     -Force
 
 $applicationPaths = @(Get-InstalledApplicationPath `
@@ -379,3 +381,10 @@ foreach ($applicationPath in $applicationPaths) {
         -ApplicationPath $applicationPath `
         -ScreenshotPath $screenshotPath
 }
+
+$null = Test-AppsAndFeaturesEntries `
+    -Manifest $manifest `
+    -Installer $installer `
+    -DefaultLocale $defaultLocale `
+    -SarifPath $sarifPath `
+    -InstallerType $InstallerType
