@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.DotNet.Native.Runtime.2.0
+PackageVersion: 2.0.25709
+PackageLocale: en
+Publisher: Microsoft Corporation
+PackageName: Microsoft .NET Native Runtime 2.0
+PackageUrl: https://www.nuget.org/packages/Microsoft.Net.Native.Compiler/2.0.6
+License: MIT
+ShortDescription: A pre-compilation technology for building Universal Windows (UWP) applications in Visual Studio. Applications are automatically compiled to native code before they reach consumer devices.
+Description: |-
+  A pre-compilation technology for building Universal Windows (UWP) applications in Visual Studio. Applications are automatically compiled to native code before they reach consumer devices.
+
+  Not to be confused with .NET Native Framework, .NET Runtime, or .NET Core Runtime.
+Moniker: nativeruntime20
+Tags:
+- microsoft.net.native.runtime.2.0
+- microsoft-dotnet-native-runtime-2.0
+- microsoftdotnetnativeruntime
+- microsoft-net-native-runtime-2.0
+- microsoftnetnativeruntime
+- microsoft-.net-native-runtime-2.0
+- microsoft.netnativeruntime
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
