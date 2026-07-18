@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.FluentUISystemIcons.Filled
+PackageVersion: 1.1.333
+PackageLocale: en
+Publisher: Microsoft
+PackageName: Fluent UI System Icons - Filled
+PackageUrl: https://github.com/microsoft/fluentui-system-icons
+License: MIT
+ShortDescription: A collection of familiar, friendly and modern icons from Microsoft.
+Moniker: fluentuifilled
+Tags:
+- font
+- fluent-ui-system-icons-filled
+- fluentui-system-icons-filled
+- FluentSystemIcons-Filled.ttf
+- fluentsystemiconsfilled
+- fluent-system-icons-filled
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
