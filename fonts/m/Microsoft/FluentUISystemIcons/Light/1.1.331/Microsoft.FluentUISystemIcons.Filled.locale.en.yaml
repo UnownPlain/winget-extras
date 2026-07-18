@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.FluentUISystemIcons.Light
+PackageVersion: 1.1.331
+PackageLocale: en
+Publisher: Microsoft
+PackageName: Fluent UI System Icons - Light
+PackageUrl: https://github.com/microsoft/fluentui-system-icons
+License: MIT
+ShortDescription: A collection of familiar, friendly and modern icons from Microsoft.
+Moniker: fluentuilight
+Tags:
+- font
+- fluent-ui-system-icons-light
+- fluentui-system-icons-light
+- FluentSystemIcons-Light.ttf
+- fluentsystemiconslight
+- fluent-system-icons-light
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
