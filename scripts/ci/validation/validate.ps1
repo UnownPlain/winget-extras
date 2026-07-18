@@ -149,6 +149,30 @@ function Find-Installer {
     $installer
 }
 
+function Test-InteractiveOnlyInstaller {
+    param(
+        [Parameter(Mandatory)]$Manifest,
+        [Parameter(Mandatory)]$Installer
+    )
+
+    $installModes = @($Installer.InstallModes ?? $Manifest.InstallModes)
+    $installModes.Count -eq 1 -and $installModes[0] -eq 'interactive'
+}
+
+function Test-UnsupportedOSArchitecture {
+    param(
+        [Parameter(Mandatory)]$Manifest,
+        [Parameter(Mandatory)]$Installer,
+        [Parameter(Mandatory)][string]$OSArchitecture
+    )
+
+    # This field describes the host OS, independently of the selected installer's architecture.
+    $unsupportedArchitectures = @(
+        $Installer.UnsupportedOSArchitectures ?? $Manifest.UnsupportedOSArchitectures
+    )
+    $unsupportedArchitectures -contains $OSArchitecture
+}
+
 function Invoke-WinGetInstall {
     param(
         [Parameter(Mandatory)][string[]]$ArgumentList,
@@ -157,7 +181,8 @@ function Invoke-WinGetInstall {
 
     $process = Start-Process winget -ArgumentList $ArgumentList -PassThru -NoNewWindow
     # Large archives such as Cinebench need longer than two minutes to extract.
-    if (-not $process.WaitForExit(5 * 60 * 1000)) {
+    $timedOut = -not $process.WaitForExit(5 * 60 * 1000)
+    if ($timedOut) {
         try {
             New-Screenshot -Path $TimeoutScreenshot
         }
@@ -165,12 +190,52 @@ function Invoke-WinGetInstall {
             Write-Warning "Could not capture timeout screenshot: $_"
         }
         finally {
-            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            $taskkill = Start-Process taskkill.exe `
+                -ArgumentList '/PID', $process.Id, '/T', '/F' `
+                -PassThru `
+                -Wait `
+                -NoNewWindow
+            if ($taskkill.ExitCode -ne 0) {
+                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            }
         }
-        throw 'Install timed out after 5 minutes'
     }
 
-    $process.ExitCode
+    [pscustomobject]@{
+        ExitCode = if ($timedOut) { $null } else { $process.ExitCode }
+        TimedOut = $timedOut
+    }
+}
+
+function Resolve-WinGetInstallResult {
+    param(
+        [Parameter(Mandatory)]$Result,
+        [switch]$InteractiveOnly,
+        [switch]$UnsupportedOS,
+        [string]$OSArchitecture
+    )
+
+    if ($UnsupportedOS) {
+        if ($Result.TimedOut) { return 'ExpectedTimeout' }
+        if ($Result.ExitCode -ne 0) { return 'ExpectedFailure' }
+        throw "Installer completed successfully on unsupported OS architecture '$OSArchitecture'"
+    }
+
+    if ($InteractiveOnly) {
+        if ($Result.TimedOut) { return 'ExpectedTimeout' }
+        if ($Result.ExitCode -eq 0) {
+            throw 'Interactive-only installer completed successfully; expected it to time out'
+        }
+        throw "Interactive-only installer exited with code $($Result.ExitCode); expected it to time out"
+    }
+
+    if ($Result.TimedOut) {
+        throw 'Install timed out after 5 minutes'
+    }
+    if ($Result.ExitCode -ne 0) {
+        throw "Install failed with exit code $($Result.ExitCode)"
+    }
+    'Installed'
 }
 
 function Copy-LatestWinGetLog {
@@ -293,6 +358,13 @@ $installer = Find-Installer `
     -Architecture $Architecture `
     -Scope $Scope `
     -InstallerType $InstallerType
+$interactiveOnly = Test-InteractiveOnlyInstaller -Manifest $manifest -Installer $installer
+$osArchitecture = [Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+$unsupportedOS = Test-UnsupportedOSArchitecture `
+    -Manifest $manifest `
+    -Installer $installer `
+    -OSArchitecture $osArchitecture
+$expectsNoInstall = $interactiveOnly -or $unsupportedOS
 
 $defaultLocale = Get-ChildItem -Path $manifestDirectory -Filter '*.locale.*.yaml' |
     ForEach-Object { Get-Content -Path $_.FullName -Raw | ConvertFrom-Yaml } |
@@ -307,7 +379,7 @@ $screenshotPath = Join-Path $artifactDirectory "$ArtifactName.png"
 New-Item -Path $artifactDirectory -ItemType Directory -Force | Out-Null
 Disable-InstallerPrompt
 Install-LatestWinGet
-Install-AttackSurfaceAnalyzer
+if (-not $expectsNoInstall) { Install-AttackSurfaceAnalyzer }
 Set-WinGetPreference -Architecture $Architecture -Scope $Scope -InstallerType $InstallerType
 
 $programFilesBefore = @(Get-ChildItem $env:ProgramFiles -Directory | Select-Object -ExpandProperty FullName)
@@ -325,14 +397,14 @@ $wingetArgs = @(
     '--accept-package-agreements', '--accept-source-agreements'
 )
 
-if (-not (Test-Path asa.sqlite)) {
+if (-not $expectsNoInstall -and -not (Test-Path asa.sqlite)) {
     Write-Information "asa collect --runid baseline $analyzerArgs" -InformationAction Continue
     asa collect --runid baseline $analyzerArgs
 }
 
 try {
-    $exitCode = Invoke-WinGetInstall -ArgumentList $wingetArgs -TimeoutScreenshot $screenshotPath
-    if ($exitCode -eq -1978334972) {
+    $installResult = Invoke-WinGetInstall -ArgumentList $wingetArgs -TimeoutScreenshot $screenshotPath
+    if (-not $installResult.TimedOut -and $installResult.ExitCode -eq -1978334972) {
         # Resolve missing package dependencies from the winget-extras source.
         winget source add `
             --name winget-extras `
@@ -340,15 +412,28 @@ try {
             --arg https://winget.tplant.com.au/cache `
             --accept-source-agreements
         winget source remove --name winget
-        $exitCode = Invoke-WinGetInstall -ArgumentList $wingetArgs -TimeoutScreenshot $screenshotPath
+        $installResult = Invoke-WinGetInstall -ArgumentList $wingetArgs -TimeoutScreenshot $screenshotPath
     }
 }
 finally {
     Copy-LatestWinGetLog -Destination (Join-Path $artifactDirectory "$ArtifactName-winget.log")
 }
 
-if ($exitCode -ne 0) {
-    throw "Install failed with exit code $exitCode"
+$installStatus = Resolve-WinGetInstallResult `
+    -Result $installResult `
+    -InteractiveOnly:$interactiveOnly `
+    -UnsupportedOS:$unsupportedOS `
+    -OSArchitecture $osArchitecture
+if ($installStatus -in @('ExpectedTimeout', 'ExpectedFailure')) {
+    $outcome = if ($installStatus -eq 'ExpectedTimeout') { 'timed out' } else { 'failed' }
+    $reason = if ($unsupportedOS) {
+        "unsupported OS architecture '$osArchitecture'"
+    }
+    else {
+        'interactive-only installer'
+    }
+    Write-Information "Installer $outcome as expected for $reason" -InformationAction Continue
+    return
 }
 
 $programFilesAdded = Get-ChildItem $env:ProgramFiles -Directory |
