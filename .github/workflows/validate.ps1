@@ -51,17 +51,18 @@ if ($InstallerType) { $nameParts += $InstallerType }
 $artifactName = $nameParts -join '-'
 "artifact_name=$artifactName" >> $env:GITHUB_OUTPUT
 
-# Install latest pre-release WinGet version for fonts support and local manifest fixes.
-# Switch back to Repair-WinGetPackageManager and stable WinGet once 1.29.x releases and
-# PowerShell modules update.
-$assetUrl = gh api `
-    '/repos/microsoft/winget-cli/releases' `
-    --jq 'map(select(.prerelease)) | first | .assets[] | select(.name == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle") | .browser_download_url'
+# Install latest WinGet version for fonts support
+$wingetDirectory = Join-Path $env:RUNNER_TEMP 'winget'
+New-Item $wingetDirectory -ItemType Directory -Force | Out-Null
+gh release download --repo microsoft/winget-cli `
+    --pattern 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle' `
+    --pattern 'DesktopAppInstaller_Dependencies.zip' `
+    --dir $wingetDirectory
 
-$wingetBundle = Join-Path $env:RUNNER_TEMP 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'
-Invoke-WebRequest -Uri $assetUrl -OutFile $wingetBundle
-Add-AppxPackage -Path $wingetBundle -ForceUpdateFromAnyVersion -ErrorAction Stop
-Write-Host "Installed latest WinGet pre-release: $(winget --version)"
+Expand-Archive "$wingetDirectory\DesktopAppInstaller_Dependencies.zip" "$wingetDirectory\dependencies"
+$dependencies = (Get-ChildItem "$wingetDirectory\dependencies\$env:RUNNER_ARCH" -File).FullName
+Add-AppxPackage "$wingetDirectory\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -DependencyPath $dependencies -ForceApplicationShutdown -ForceUpdateFromAnyVersion -ErrorAction Stop
+Write-Host "Installed latest WinGet: $(winget --version)"
 
 $wingetSettings = @{
     '$schema'            = 'https://aka.ms/winget-settings.schema.json'
