@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.28.0.schema.json
+ 
+PackageIdentifier: Bluegrams.ScreenRuler
+PackageVersion: "1.10"
+PackageLocale: en-GB
+Publisher: Bluegrams
+ShortDescription: A lightweight and configurable ruler tool for Windows Desktop. It allows measuring the size of elements on the screen in different units, including pixels, centimetres and inches.
+Tags:
+- screen-ruler
+- measurement-ruler
+- measurementruler
+- centimetre-ruler
+- centimetreruler
+- calibratable-ruler
+- size-measuring
+ManifestType: locale
+ManifestVersion: 1.28.0
