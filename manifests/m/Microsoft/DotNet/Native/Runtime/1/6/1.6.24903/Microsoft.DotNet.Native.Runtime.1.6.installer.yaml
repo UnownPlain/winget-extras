@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.DotNet.Native.Runtime.1.6
+PackageVersion: 1.6.24903
+ReleaseDate: 2019-03-13
+Platform:
+- Windows.Universal
+MinimumOSVersion: 10.0.10049.0
+InstallerType: zip
+NestedInstallerType: msix
+Installers:
+- Architecture: x64
+  NestedInstallerFiles:
+  - RelativeFilePath: tools\Runtime\x64\Microsoft.NET.Native.Runtime.1.6.appx
+  InstallerUrl: https://globalcdn.nuget.org/packages/microsoft.net.native.compiler.1.6.6.nupkg
+  InstallerSha256: 898f4ff25dcef8685919e0fe95b95b03746c78ffcc129ea14c555016f4133ea4
+  SignatureSha256: 6fe7b88b00f8c30f105b75137c1b38ae9612e28d7d784eed44a3166961ae6d6e
+- Architecture: x86
+  NestedInstallerFiles:
+  - RelativeFilePath: tools\Runtime\x86\Microsoft.NET.Native.Runtime.1.6.appx
+  InstallerUrl: https://globalcdn.nuget.org/packages/microsoft.net.native.compiler.1.6.6.nupkg
+  InstallerSha256: 898f4ff25dcef8685919e0fe95b95b03746c78ffcc129ea14c555016f4133ea4
+  SignatureSha256: 8d2b951520db522bce2fef095736ac095696e3dde8314f19278c40592d0b2752
+- Architecture: arm
+  NestedInstallerFiles:
+  - RelativeFilePath: tools\Runtime\arm\Microsoft.NET.Native.Runtime.1.6.appx
+  InstallerUrl: https://globalcdn.nuget.org/packages/microsoft.net.native.compiler.1.6.6.nupkg
+  InstallerSha256: 898f4ff25dcef8685919e0fe95b95b03746c78ffcc129ea14c555016f4133ea4
+  SignatureSha256: 3a7de978d30bf09c0aaf5dd615a9d2c7d69f7960ba6a49f3e15d4a756d4fdfd2
+ManifestType: installer
+ManifestVersion: 1.28.0
