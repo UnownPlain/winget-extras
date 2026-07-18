@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.FluentUISystemIcons.Resizable
+PackageVersion: 1.1.333
+PackageLocale: en
+Publisher: Microsoft
+PackageName: Fluent UI System Icons - Resizable
+PackageUrl: https://github.com/microsoft/fluentui-system-icons
+License: MIT
+ShortDescription: A collection of familiar, friendly and modern icons from Microsoft.
+Moniker: fluentuiresizable
+Tags:
+- font
+- fluent-ui-system-icons-resizable
+- fluentui-system-icons-resizable
+- FluentSystemIcons-Resizable.ttf
+- fluentsystemiconsresizable
+- fluent-system-icons-resizable
+ManifestType: defaultLocale
+ManifestVersion: 1.28.0
