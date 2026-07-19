@@ -39,7 +39,29 @@ In the Settings Catalog, enable **Administrative Templates > Windows Components 
 
 Enable **Computer Configuration > Administrative Templates > Windows Components > Desktop App Installer > Enable App Installer Additional Sources** and set the same value as above.
 
-## Validation
+## Adding packages
+
+The easiest way to author or update a manifest is the Anthelion fork of Komac. Download a binary for your platform from [unpn-org/Komac releases](https://github.com/unpn-org/Komac/releases), then use these environment variables:
+
+| Variable             | Value                                                        |
+| -------------------- | ------------------------------------------------------------ |
+| `GITHUB_TOKEN`       | A classic personal access token with the `public_repo` scope |
+| `KOMAC_GITHUB_OWNER` | `pl4nty`                                                     |
+| `KOMAC_GITHUB_REPO`  | `winget-extras`                                              |
+
+```sh
+# add a new package
+komac new Publisher.Package
+
+# update an existing package to a new version
+komac update Publisher.Package --version 1.2.3 --urls https://example.com/setup-1.2.3.exe
+```
+
+### Automated updates
+
+Add a shard at `shards/json/<PackageIdentifier>.json` describing how to detect new versions, and they'll be added automatically. See Anthelion's [CONTRIBUTING.md](https://github.com/UnownPlain/anthelion/blob/main/CONTRIBUTING.md) for the shard format, strategies for common sources, and how to test a shard locally with `bun test:shard <PackageIdentifier> --dry-run`.
+
+### Validation
 
 Packages are validated automatically using [GitHub Actions](https://github.com/pl4nty/winget-extras/blob/main/.github/workflows/validate.yml), or manually using `SandboxTest` from `winget-pkgs`. There are some limitations:
 
