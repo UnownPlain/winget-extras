@@ -7,6 +7,7 @@ InstallerType: zip # .nupkg packages with .exe-s inside.
 NestedInstallerType: appx
 NestedInstallerFiles:
 - RelativeFilePath: tools\Appx\Microsoft.NET.CoreRuntime.2.2.appx
+PackageFamilyName: Microsoft.NET.CoreRuntime.2.2_8wekyb3d8bbwe
 Installers:
 - Architecture: x64
   InstallerUrl: https://globalcdn.nuget.org/packages/runtime.win10-x64.microsoft.net.uwpcoreruntimesdk.2.2.14.nupkg
