@@ -8,6 +8,7 @@ Platform:
 MinimumOSVersion: 10.0.10049.0
 InstallerType: zip
 NestedInstallerType: msix
+PackageFamilyName: Microsoft.NET.Native.Runtime.2.0_8wekyb3d8bbwe
 Installers:
 - Architecture: x64
   NestedInstallerFiles:
