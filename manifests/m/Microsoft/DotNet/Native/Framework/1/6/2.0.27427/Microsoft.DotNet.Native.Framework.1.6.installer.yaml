@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: Microsoft.DotNet.Native.Framework.1.6
+PackageVersion: 1.6.27413
+ReleaseDate: 2019-03-13
+Platform:
+- Windows.Universal
+MinimumOSVersion: 10.0.10049.0
+InstallerType: zip
+NestedInstallerType: msix
+NestedInstallerFiles:
+- RelativeFilePath: tools\SharedLibrary\ret\Native\Microsoft.NET.Native.Framework.1.6.appx
+PackageFamilyName: Microsoft.NET.Native.Framework.1.6_8wekyb3d8bbwe
+Installers:
+- Architecture: x64
+  InstallerUrl: https://globalcdn.nuget.org/packages/microsoft.net.native.sharedlibrary-x64.1.6.4.nupkg
+  InstallerSha256: 2cbf33df0d66a0dd00cc1302534a5cb8625e65e5567bf12e055fdd2733d72574
+  SignatureSha256: 8ba93069928c6bb7f225015d579f68aee3d214c2c164552325009291af1e1d9b
+- Architecture: x86
+  InstallerUrl: https://globalcdn.nuget.org/packages/microsoft.net.native.sharedlibrary-x86.1.6.4.nupkg
+  InstallerSha256: 2b232a717c583978fc1be606d81c02dcb4b94ddc315a6fbb3b567239c509c1b4
+  SignatureSha256: c640701dc85e0cd31bafca4225e4930282e892f734aff7aee2a95d9e67b26275
+- Architecture: arm
+  InstallerUrl: https://globalcdn.nuget.org/packages/microsoft.net.native.sharedlibrary-arm.1.6.4.nupkg
+  InstallerSha256: 69d2a4da54cb9e9f8d78fb6e3f145170d146a8b113a3af96b060057c4953d179
+  SignatureSha256: e3bb8ebdab190db7f8aebd0398913a75831d66d8c222f82a20ad73fdfee8c5a2
+ManifestType: installer
+ManifestVersion: 1.28.0
