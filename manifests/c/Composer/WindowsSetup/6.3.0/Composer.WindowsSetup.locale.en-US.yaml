@@ -1,7 +1,8 @@
+# Created by Anthelion using komac v2.16.0
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 
 PackageIdentifier: Composer.WindowsSetup
-PackageVersion: "6.3"
+PackageVersion: 6.3.0
 PackageLocale: en-US
 Publisher: Composer
 PackageName: Composer Windows Setup
@@ -13,15 +14,14 @@ Description: Composer's official .exe for initial installations of the PHP depen
 Moniker: composer
 Tags:
 - getcomposer
-- php-dependency-manager
-- phpdependencymanager
-- php-dependencies
-- phpdependencies
 - packagist
+- php-dependencies
+- php-dependency-manager
+- phpdependencies
+- phpdependencymanager
 - requirescmd
 Agreements:
-- Agreement: |-
-    At least one supported version of PHP must already be on the PC, or else this Winget package fails to install. As of June 2026, PHP ≥7.2.5 are known to be supported.
+- Agreement: At least one supported version of PHP must already be on the PC, or else this Winget package fails to install. As of June 2026, PHP ≥7.2.5 are known to be supported.
 Documentations:
 - DocumentLabel: Alternate Homepage
   DocumentUrl: https://getcomposer.org/download/
